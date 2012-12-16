@@ -16,7 +16,7 @@ import           Data.ByteString.Char8 (ByteString, packCString,
                                         packCStringLen, useAsCString)
 import           Data.Text             (Text)
 import qualified Data.Text             as Text
-import           Data.Text.Encoding    (decodeUtf8, encodeUtf8)
+import           Data.Text.Encoding    (decodeUtf8', encodeUtf8)
 -------------------------------------------------------------------------------
 import           Foreign               (Ptr)
 import           Foreign.C             (CInt (..), CString)
@@ -59,7 +59,7 @@ stems algorithm words =
           do ptr <- sb_stemmer_stem stemmer word' (fromIntegral $ Text.length word)
              len <- sb_stemmer_length stemmer
              bytes <- packCStringLen (ptr,fromIntegral len)
-             return $ decodeUtf8 bytes
+             return $ either (const word) id $ decodeUtf8' bytes
 
 {-# RULES "map/stem" forall a xs. map (stem a) xs = stems a xs #-}
 
