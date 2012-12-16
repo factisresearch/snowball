@@ -8,9 +8,7 @@ synopsis      : Bindings to the Snowball library.
 description   : The Snowball library is used to compute the stems of words
                 in natural languages.
                 .
-                Compared to the older
-                <http://hackage.haskell.org/package/stemmer stemmer>
-                package, this one:
+                Compared to the older <stemmer> package, this one:
                 .
                 * Correctly handles unicode without relying on the system
                   locale
