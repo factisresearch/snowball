@@ -68,16 +68,16 @@ stems algorithm words =
 
 data Stemmer
 
-foreign import ccall "libstemmer.h sb_stemmer_new"
+foreign import ccall unsafe "libstemmer.h sb_stemmer_new"
     sb_stemmer_new :: CString -> CString -> IO (Ptr Stemmer)
 
-foreign import ccall "libstemmer.h sb_stemmer_delete"
+foreign import ccall unsafe "libstemmer.h sb_stemmer_delete"
     sb_stemmer_delete :: Ptr Stemmer -> IO ()
 
-foreign import ccall "libstemmer.h sb_stemmer_stem"
+foreign import ccall unsafe "libstemmer.h sb_stemmer_stem"
     sb_stemmer_stem :: Ptr Stemmer -> CString -> CInt -> IO (CString)
 
-foreign import ccall "libstemmer.h sb_stemmer_length"
+foreign import ccall unsafe "libstemmer.h sb_stemmer_length"
     sb_stemmer_length :: Ptr Stemmer -> IO CInt
 
 withStemmer :: Algorithm -> (Ptr Stemmer -> IO a) -> IO a
