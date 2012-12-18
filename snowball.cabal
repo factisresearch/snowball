@@ -1,5 +1,5 @@
 name          : snowball
-version       : 0.1.0.1
+version       : 0.1.0.2
 homepage      : http://hub.darcs.net/dag/snowball
 category      : Natural Language Processing, Text
 maintainer    : dag.odenhall@gmail.com
