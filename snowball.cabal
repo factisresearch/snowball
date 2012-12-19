@@ -13,7 +13,8 @@ description   : The Snowball library is used to compute the stems of words
                 * Correctly handles unicode without relying on the system
                   locale
                 .
-                * Takes greater care to avoid memory leaks
+                * Takes greater care to avoid memory leaks and to be thread
+                  safe
                 .
                 * Uses Text rather than String
                 .
