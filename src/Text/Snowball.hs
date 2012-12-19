@@ -117,6 +117,7 @@ stemsIO (Stemmer mvar) ws =
                bytes <- packCStringLen (ptr,fromIntegral len)
                return $ either (const word) id $ decodeUtf8' bytes
 
+
 -------------------------------------------------------------------------------
 
 data Struct
