@@ -6,6 +6,7 @@ module Text.Snowball
     ( -- * Pure interface
       Algorithm(..)
     , stem
+    , stems
       -- * IO interface
     , Stemmer
     , newStemmer
@@ -58,6 +59,11 @@ data Algorithm
 stem :: Algorithm -> Text -> Text
 stem algorithm word = let [a] = stems algorithm [word] in a
 
+-- | Compute the stems of several words in one go.  This can be more
+--   efficient than @'map' 'stem'@ because it uses a single 'Stemmer'
+--   instance, however the @map@ version is rewritten to use this function
+--   with a rewrite rule.  You can still use this function though if you
+--   want to make sure it is used or if you find it more convenient.
 stems :: Algorithm -> [Text] -> [Text]
 stems algorithm ws =
     unsafePerformIO $
