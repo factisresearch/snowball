@@ -12,8 +12,8 @@ module Text.Snowball
 import           Control.Exception     (finally)
 import           Control.Monad         (forM)
 -------------------------------------------------------------------------------
-import           Data.ByteString.Char8 (ByteString, packCString,
-                                        packCStringLen, useAsCString)
+import           Data.ByteString.Char8 (ByteString, packCStringLen,
+                                        useAsCString)
 import           Data.Text             (Text)
 import qualified Data.Text             as Text
 import           Data.Text.Encoding    (decodeUtf8', encodeUtf8)
@@ -52,9 +52,9 @@ stem :: Algorithm -> Text -> Text
 stem algorithm word = let [a] = stems algorithm [word] in a
 
 stems :: Algorithm -> [Text] -> [Text]
-stems algorithm words =
+stems algorithm ws =
     unsafePerformIO $ withStemmer algorithm $ \stemmer ->
-      forM words $ \word ->
+      forM ws $ \word ->
         useAsCString (encodeUtf8 word) $ \word' ->
           do ptr <- sb_stemmer_stem stemmer word' (fromIntegral $ Text.length word)
              len <- sb_stemmer_length stemmer
