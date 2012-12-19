@@ -1,7 +1,7 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
-{-# LANGUAGE OverloadedStrings #-}
-
--- | Bindings to the Snowball library.
+-- |
+--   Portability: Haskell2010
+--
+--   Bindings to the Snowball library.
 module Text.Snowball
     ( -- * Pure interface
       Algorithm(..)
@@ -19,7 +19,7 @@ module Text.Snowball
 import           Control.Concurrent    (MVar, newMVar, withMVar)
 import           Control.Monad         (forM)
 -------------------------------------------------------------------------------
-import           Data.ByteString.Char8 (ByteString, packCStringLen,
+import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
                                         useAsCString)
 import           Data.Text             (Text)
 import qualified Data.Text             as Text
@@ -82,7 +82,7 @@ newtype Stemmer = Stemmer (MVar (ForeignPtr Struct))
 newStemmer :: Algorithm  -> IO Stemmer
 newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
-      useAsCString "UTF_8" $ \utf8 ->
+      useAsCString (pack "UTF_8") $ \utf8 ->
         do struct <- sb_stemmer_new name utf8
            structPtr <- newForeignPtr sb_stemmer_delete struct
            mvar <- newMVar structPtr
@@ -138,19 +138,19 @@ foreign import ccall unsafe "libstemmer.h sb_stemmer_length"
 algorithmName :: Algorithm -> ByteString
 algorithmName algorithm =
     case algorithm of
-      Danish     -> "da"
-      Dutch      -> "nl"
-      English    -> "en"
-      Finnish    -> "fi"
-      French     -> "fr"
-      German     -> "de"
-      Hungarian  -> "hu"
-      Italian    -> "it"
-      Norwegian  -> "no"
-      Portuguese -> "pt"
-      Romanian   -> "ro"
-      Russian    -> "ru"
-      Spanish    -> "es"
-      Swedish    -> "sv"
-      Turkish    -> "tr"
-      Porter     -> "porter"
+      Danish     -> pack "da"
+      Dutch      -> pack "nl"
+      English    -> pack "en"
+      Finnish    -> pack "fi"
+      French     -> pack "fr"
+      German     -> pack "de"
+      Hungarian  -> pack "hu"
+      Italian    -> pack "it"
+      Norwegian  -> pack "no"
+      Portuguese -> pack "pt"
+      Romanian   -> pack "ro"
+      Russian    -> pack "ru"
+      Spanish    -> pack "es"
+      Swedish    -> pack "sv"
+      Turkish    -> pack "tr"
+      Porter     -> pack "porter"
