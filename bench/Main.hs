@@ -5,7 +5,8 @@ module Main (main) where
 -------------------------------------------------------------------------------
 import           Control.Applicative      ((<$>))
 -------------------------------------------------------------------------------
-import           Criterion.Main           (Pure, bench, defaultMain, nf)
+import           Criterion.Main           (Pure, bench, bgroup, defaultMain,
+                                           nf)
 -------------------------------------------------------------------------------
 import           Data.Text                (Text)
 import qualified Data.Text                as Text
@@ -18,9 +19,15 @@ import           Text.Snowball
 
 main :: IO ()
 main = do
-    ws <- take 100 . Text.lines <$> Text.readFile "/usr/share/dict/words"
-    defaultMain $(functionExtractorMap "^bench_"
-                   [| \name benchmark -> bench (drop 6 name) (benchmark ws) |])
+    ws <- take 50000 . Text.lines <$> Text.readFile "/usr/share/dict/words"
+    defaultMain
+      [ bgroup "100 words"
+          $(functionExtractorMap "^bench_"
+             [| \name benchmark -> bench (drop 6 name) (benchmark (take 100 ws)) |])
+      , bgroup "50k words"
+          $(functionExtractorMap "^bench_"
+             [| \name benchmark -> bench (drop 6 name) (benchmark ws) |])
+      ]
 
 bench_stem :: [Text] -> Pure
 bench_stem = nf $ foldr ((:) . stem English) []
