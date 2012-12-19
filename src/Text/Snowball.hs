@@ -3,13 +3,19 @@
 
 -- | Bindings to the Snowball library.
 module Text.Snowball
-    ( Algorithm(..)
+    ( -- * Pure interface
+      Algorithm(..)
     , stem
+      -- * IO interface
+    , Stemmer
+    , newStemmer
+    , stemIO
+    , stemsIO
     )
   where
 
 -------------------------------------------------------------------------------
-import           Control.Exception     (finally)
+import           Control.Concurrent    (MVar, newMVar, withMVar)
 import           Control.Monad         (forM)
 -------------------------------------------------------------------------------
 import           Data.ByteString.Char8 (ByteString, packCStringLen,
@@ -18,7 +24,8 @@ import           Data.Text             (Text)
 import qualified Data.Text             as Text
 import           Data.Text.Encoding    (decodeUtf8', encodeUtf8)
 -------------------------------------------------------------------------------
-import           Foreign               (Ptr)
+import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
+                                        withForeignPtr)
 import           Foreign.C             (CInt (..), CString)
 -------------------------------------------------------------------------------
 import           System.IO.Unsafe      (unsafePerformIO)
@@ -53,39 +60,72 @@ stem algorithm word = let [a] = stems algorithm [word] in a
 
 stems :: Algorithm -> [Text] -> [Text]
 stems algorithm ws =
-    unsafePerformIO $ withStemmer algorithm $ \stemmer ->
-      forM ws $ \word ->
-        useAsCString (encodeUtf8 word) $ \word' ->
-          do ptr <- sb_stemmer_stem stemmer word' (fromIntegral $ Text.length word)
-             len <- sb_stemmer_length stemmer
-             bytes <- packCStringLen (ptr,fromIntegral len)
-             return $ either (const word) id $ decodeUtf8' bytes
+    unsafePerformIO $
+      do stemmer <- newStemmer algorithm
+         stemsIO stemmer ws
 
 {-# RULES "map/stem" forall a xs. map (stem a) xs = stems a xs #-}
 
 
 -------------------------------------------------------------------------------
 
-data Stemmer
+-- | A thread and memory safe Snowball stemmer instance.
+newtype Stemmer = Stemmer (MVar (ForeignPtr Struct))
 
-foreign import ccall unsafe "libstemmer.h sb_stemmer_new"
-    sb_stemmer_new :: CString -> CString -> IO (Ptr Stemmer)
-
-foreign import ccall unsafe "libstemmer.h sb_stemmer_delete"
-    sb_stemmer_delete :: Ptr Stemmer -> IO ()
-
-foreign import ccall unsafe "libstemmer.h sb_stemmer_stem"
-    sb_stemmer_stem :: Ptr Stemmer -> CString -> CInt -> IO (CString)
-
-foreign import ccall unsafe "libstemmer.h sb_stemmer_length"
-    sb_stemmer_length :: Ptr Stemmer -> IO CInt
-
-withStemmer :: Algorithm -> (Ptr Stemmer -> IO a) -> IO a
-withStemmer algorithm action =
+-- | Create a new reusable 'Stemmer' instance.
+newStemmer :: Algorithm  -> IO Stemmer
+newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
       useAsCString "UTF_8" $ \utf8 ->
-        do stemmer <- sb_stemmer_new name utf8
-           action stemmer `finally` sb_stemmer_delete stemmer
+        do struct <- sb_stemmer_new name utf8
+           structPtr <- newForeignPtr sb_stemmer_delete struct
+           mvar <- newMVar structPtr
+           return $ Stemmer mvar
+
+-- | Use a 'Stemmer' to stem a word.  This can be used more efficiently
+--   than 'stem' because you can keep a stemmer around and reuse it, but it
+--   requires 'IO' to ensure thread safety.
+--
+--   In my benchmarks, this (and 'stemsIO') is faster than 'stem' for a few
+--   hundred words, but slower for larger number of words.  I don't know if
+--   this is a problem with my benchmarks, with these bindings or with the
+--   Snowball library itself, but make sure to benchmark yourself if speed
+--   is a concern, and consider caching stems with e.g. a @HashMap@.
+stemIO :: Stemmer -> Text -> IO Text
+stemIO stemmer word = do
+    [a] <- stemsIO stemmer [word]
+    return a
+
+-- | Use a 'Stemmer' to stem multiple words in one go.  This can be more
+--   efficient than @'mapM' 'stemIO'@ because the 'Stemmer' is only locked
+--   once.
+stemsIO :: Stemmer -> [Text] -> IO [Text]
+stemsIO (Stemmer mvar) ws =
+    withMVar mvar $ \structPtr ->
+      withForeignPtr structPtr $ \struct ->
+        forM ws $ \word ->
+          useAsCString (encodeUtf8 word) $ \word' ->
+            do ptr <- sb_stemmer_stem struct word' $
+                        fromIntegral $ Text.length word
+               len <- sb_stemmer_length struct
+               bytes <- packCStringLen (ptr,fromIntegral len)
+               return $ either (const word) id $ decodeUtf8' bytes
+
+-------------------------------------------------------------------------------
+
+data Struct
+
+foreign import ccall unsafe "libstemmer.h sb_stemmer_new"
+    sb_stemmer_new :: CString -> CString -> IO (Ptr Struct)
+
+foreign import ccall unsafe "libstemmer.h &sb_stemmer_delete"
+    sb_stemmer_delete :: FunPtr (Ptr Struct -> IO ())
+
+foreign import ccall unsafe "libstemmer.h sb_stemmer_stem"
+    sb_stemmer_stem :: Ptr Struct -> CString -> CInt -> IO (CString)
+
+foreign import ccall unsafe "libstemmer.h sb_stemmer_length"
+    sb_stemmer_length :: Ptr Struct -> IO CInt
 
 algorithmName :: Algorithm -> ByteString
 algorithmName algorithm =
