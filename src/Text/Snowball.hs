@@ -17,7 +17,7 @@ module Text.Snowball
 
 -------------------------------------------------------------------------------
 import           Control.Concurrent    (MVar, newMVar, withMVar)
-import           Control.Monad         (forM)
+import           Control.Monad         (forM, when)
 -------------------------------------------------------------------------------
 import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
                                         useAsCString)
@@ -26,7 +26,7 @@ import qualified Data.Text             as Text
 import           Data.Text.Encoding    (decodeUtf8', encodeUtf8)
 -------------------------------------------------------------------------------
 import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
-                                        withForeignPtr)
+                                        nullPtr, withForeignPtr)
 import           Foreign.C             (CInt (..), CString)
 -------------------------------------------------------------------------------
 import           System.IO.Unsafe      (unsafePerformIO)
@@ -84,6 +84,8 @@ newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
       useAsCString (pack "UTF_8") $ \utf8 ->
         do struct <- sb_stemmer_new name utf8
+           when (struct == nullPtr) $
+             error "Text.Snowball.newStemmer: nullPtr"
            structPtr <- newForeignPtr sb_stemmer_delete struct
            mvar <- newMVar structPtr
            return $ Stemmer mvar
