@@ -95,7 +95,7 @@ newStemmer algorithm =
 --   In my benchmarks, this (and 'stemsIO') is faster than 'stem' for a few
 --   hundred words, but slower for larger number of words.  I don't know if
 --   this is a problem with my benchmarks, with these bindings or with the
---   Snowball library itself, but make sure to benchmark yourself if speed
+--   Snowball library itself, so make sure to benchmark yourself if speed
 --   is a concern, and consider caching stems with e.g. a @HashMap@.
 stemIO :: Stemmer -> Text -> IO Text
 stemIO stemmer word = do
