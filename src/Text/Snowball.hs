@@ -10,8 +10,8 @@ module Text.Snowball
       -- * IO interface
     , Stemmer
     , newStemmer
-    , stemIO
-    , stemsIO
+    , stemWith
+    , stemsWith
     )
   where
 
@@ -68,7 +68,7 @@ stems :: Algorithm -> [Text] -> [Text]
 stems algorithm ws =
     unsafePerformIO $
       do stemmer <- newStemmer algorithm
-         stemsIO stemmer ws
+         stemsWith stemmer ws
 
 {-# RULES "map/stem" forall a xs. map (stem a) xs = stems a xs #-}
 
@@ -92,21 +92,22 @@ newStemmer algorithm =
 --   than 'stem' because you can keep a stemmer around and reuse it, but it
 --   requires 'IO' to ensure thread safety.
 --
---   In my benchmarks, this (and 'stemsIO') is faster than 'stem' for a few
---   hundred words, but slower for larger number of words.  I don't know if
---   this is a problem with my benchmarks, with these bindings or with the
---   Snowball library itself, so make sure to benchmark yourself if speed
---   is a concern, and consider caching stems with e.g. a @HashMap@.
-stemIO :: Stemmer -> Text -> IO Text
-stemIO stemmer word = do
-    [a] <- stemsIO stemmer [word]
+--   In my benchmarks, this (and 'stemsWith') is faster than 'stem' for
+--   a few hundred words, but slower for larger number of words.  I don't
+--   know if this is a problem with my benchmarks, with these bindings or
+--   with the Snowball library itself, so make sure to benchmark yourself
+--   if speed is a concern, and consider caching stems with e.g.
+--   a @HashMap@.
+stemWith :: Stemmer -> Text -> IO Text
+stemWith stemmer word = do
+    [a] <- stemsWith stemmer [word]
     return a
 
 -- | Use a 'Stemmer' to stem multiple words in one go.  This can be more
---   efficient than @'mapM' 'stemIO'@ because the 'Stemmer' is only locked
---   once.
-stemsIO :: Stemmer -> [Text] -> IO [Text]
-stemsIO (Stemmer mvar) ws =
+--   efficient than @'mapM' 'stemWith'@ because the 'Stemmer' is only
+--   locked once.
+stemsWith :: Stemmer -> [Text] -> IO [Text]
+stemsWith (Stemmer mvar) ws =
     withMVar mvar $ \structPtr ->
       withForeignPtr structPtr $ \struct ->
         forM ws $ \word ->

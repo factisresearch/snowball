@@ -28,12 +28,12 @@ bench_stem = nf $ foldr ((:) . stem English) []
 bench_map_stem :: [Text] -> Pure
 bench_map_stem = nf $ map (stem English)
 
-bench_stemIO :: [Text] -> IO [Text]
-bench_stemIO ws = do
+bench_stemWith :: [Text] -> IO [Text]
+bench_stemWith ws = do
     english <- newStemmer English
-    mapM (stemIO english) ws
+    mapM (stemWith english) ws
 
-bench_stemsIO :: [Text] -> IO [Text]
-bench_stemsIO ws = do
+bench_stemsWith :: [Text] -> IO [Text]
+bench_stemsWith ws = do
     english <- newStemmer English
-    stemsIO english ws
+    stemsWith english ws
