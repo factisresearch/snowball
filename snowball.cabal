@@ -28,6 +28,8 @@ description   : The Snowball library is used to compute the stems of words
                 * Supports @SafeHaskell@ when available and is otherwise
                   @Haskell2010@
                 .
+                * Comes with a test suite
+                .
                 However, although this code is written from scratch, it is
                 heavily modeled after the code of the \"stemmer\" package.
 license       : BSD3
@@ -101,4 +103,21 @@ benchmark bench-snowball
                      criterion,
                      language-haskell-extract,
                      snowball,
+                     text
+
+test-suite test-snowball
+  type             : exitcode-stdio-1.0
+  main-is          : Main.hs
+  hs-source-dirs   : test
+  default-language : Haskell2010
+  ghc-options      : -Wall -fno-warn-orphans
+                     -threaded -rtsopts -with-rtsopts=-N
+  build-depends    : base == 4.*,
+                     HUnit,
+                     QuickCheck,
+                     quickcheck-instances,
+                     snowball,
+                     test-framework-hunit,
+                     test-framework-quickcheck2,
+                     test-framework-th,
                      text
