@@ -12,6 +12,8 @@ import           Data.Text                            (Text)
 import qualified Data.Text                            as Text
 import qualified Data.Text.IO                         as Text
 -------------------------------------------------------------------------------
+import           NLP.Snowball
+-------------------------------------------------------------------------------
 import           Test.Framework.Providers.HUnit       (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
 import           Test.Framework.TH                    (defaultMainGenerator)
@@ -20,8 +22,6 @@ import           Test.QuickCheck                      (Arbitrary (..),
                                                        Property, elements,
                                                        (==>))
 import           Test.QuickCheck.Instances            ()
--------------------------------------------------------------------------------
-import           Text.Snowball
 -------------------------------------------------------------------------------
 
 

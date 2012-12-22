@@ -2,7 +2,7 @@
 --   Portability: Haskell2010
 --
 --   Bindings to the Snowball library.
-module Text.Snowball
+module NLP.Snowball
     ( -- * Pure interface
       Algorithm(..)
     , stem

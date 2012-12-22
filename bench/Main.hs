@@ -14,7 +14,7 @@ import qualified Data.Text.IO             as Text
 -------------------------------------------------------------------------------
 import           Language.Haskell.Extract (functionExtractorMap)
 -------------------------------------------------------------------------------
-import           Text.Snowball
+import           NLP.Snowball
 -------------------------------------------------------------------------------
 
 main :: IO ()

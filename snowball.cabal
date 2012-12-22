@@ -86,7 +86,7 @@ library
                      libstemmer_c/runtime/api.c
                      libstemmer_c/runtime/utilities.c
                      libstemmer_c/libstemmer/libstemmer_utf8.c
-  exposed-modules  : Text.Snowball
+  exposed-modules  : NLP.Snowball
   build-depends    : base == 4.*,
                      bytestring,
                      text
