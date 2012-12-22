@@ -1,6 +1,7 @@
 name          : snowball
 version       : 1.0.0
 homepage      : http://hub.darcs.net/dag/snowball
+bug-reports   : http://hub.darcs.net/dag/snowball/issues
 category      : Natural Language Processing, Text
 maintainer    : dag.odenhall@gmail.com
 copyright     : (c) 2012 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
