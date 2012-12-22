@@ -97,13 +97,6 @@ newStemmer algorithm =
 -- | Use a 'Stemmer' to stem a word.  This can be used more efficiently
 --   than 'stem' because you can keep a stemmer around and reuse it, but it
 --   requires 'IO' to ensure thread safety.
---
---   In my benchmarks, this (and 'stemsWith') is faster than 'stem' for
---   a few hundred words, but slower for larger number of words.  I don't
---   know if this is a problem with my benchmarks, with these bindings or
---   with the Snowball library itself, so make sure to benchmark yourself
---   if speed is a concern, and consider caching stems with e.g.
---   a @HashMap@.
 stemWith :: Stemmer -> Text -> IO Text
 stemWith stemmer word = do
     [a] <- stemsWith stemmer [word]
