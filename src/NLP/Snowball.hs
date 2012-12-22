@@ -23,7 +23,8 @@ import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
                                         useAsCString)
 import           Data.Text             (Text)
 import qualified Data.Text             as Text
-import           Data.Text.Encoding    (decodeUtf8', encodeUtf8)
+import           Data.Text.ICU.Convert (Converter, fromUnicode, open,
+                                        toUnicode)
 -------------------------------------------------------------------------------
 import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
                                         nullPtr, withForeignPtr)
@@ -76,19 +77,22 @@ stems algorithm ws =
 -------------------------------------------------------------------------------
 
 -- | A thread and memory safe Snowball stemmer instance.
-newtype Stemmer = Stemmer (MVar (ForeignPtr Struct))
+newtype Stemmer = Stemmer (MVar (ForeignPtr Struct,Converter))
 
 -- | Create a new reusable 'Stemmer' instance.
 newStemmer :: Algorithm  -> IO Stemmer
 newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
-      useAsCString (pack "UTF_8") $ \utf8 ->
+      useAsCString (encodingName encoding) $ \utf8 ->
         do struct <- sb_stemmer_new name utf8
            when (struct == nullPtr) $
              error "Text.Snowball.newStemmer: nullPtr"
            structPtr <- newForeignPtr sb_stemmer_delete struct
-           mvar <- newMVar structPtr
+           converter <- open (converterName encoding) Nothing
+           mvar <- newMVar (structPtr,converter)
            return $ Stemmer mvar
+  where
+    encoding = algorithmEncoding algorithm
 
 -- | Use a 'Stemmer' to stem a word.  This can be used more efficiently
 --   than 'stem' because you can keep a stemmer around and reuse it, but it
@@ -110,15 +114,15 @@ stemWith stemmer word = do
 --   locked once.
 stemsWith :: Stemmer -> [Text] -> IO [Text]
 stemsWith (Stemmer mvar) ws =
-    withMVar mvar $ \structPtr ->
+    withMVar mvar $ \(structPtr,converter) ->
       withForeignPtr structPtr $ \struct ->
         forM ws $ \word ->
-          useAsCString (encodeUtf8 word) $ \word' ->
+          useAsCString (fromUnicode converter word) $ \word' ->
             do ptr <- sb_stemmer_stem struct word' $
                         fromIntegral $ Text.length word
                len <- sb_stemmer_length struct
                bytes <- packCStringLen (ptr,fromIntegral len)
-               return $ either (const word) id $ decodeUtf8' bytes
+               return $ toUnicode converter bytes
 
 
 -------------------------------------------------------------------------------
@@ -156,3 +160,29 @@ algorithmName algorithm =
       Swedish    -> pack "sv"
       Turkish    -> pack "tr"
       Porter     -> pack "porter"
+
+data Encoding = UTF_8 | ISO_8859_1 | ISO_8859_2 | KOI8_R
+
+encodingName :: Encoding -> ByteString
+encodingName encoding =
+    case encoding of
+      UTF_8      -> pack "UTF_8"
+      ISO_8859_1 -> pack "ISO_8859_1"
+      ISO_8859_2 -> pack "ISO_8859_2"
+      KOI8_R     -> pack "KOI8_R"
+
+converterName :: Encoding -> String
+converterName encoding =
+    case encoding of
+      UTF_8      -> "UTF-8"
+      ISO_8859_1 -> "ISO-8859-1"
+      ISO_8859_2 -> "ISO-8859-2"
+      KOI8_R     -> "KOI8-R"
+
+algorithmEncoding :: Algorithm -> Encoding
+algorithmEncoding algorithm =
+    case algorithm of
+      Romanian -> ISO_8859_2
+      Russian  -> KOI8_R
+      Turkish  -> UTF_8
+      _        -> ISO_8859_1

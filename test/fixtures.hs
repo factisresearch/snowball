@@ -20,17 +20,24 @@ deriving instance Show Algorithm
 
 -------------------------------------------------------------------------------
 
+pairs :: [a] -> [(a,a)]
+pairs (x:y:zs) = (x,y) : pairs zs
+pairs _ = []
+
+
+-------------------------------------------------------------------------------
+
+main :: IO ()
 main = do
     args <- getArgs
     forM_ args $ \file -> do
       let name = dropExtension $ takeFileName file
           algorithm = read $ (toUpper $ head name) : (tail name)
       stemmer <- newStemmer algorithm
-      ls <- Text.lines <$> Text.readFile file
-      forM_ ls $ \line -> do
-        let [word,expected] = Text.words line
+      ws <- Text.words <$> Text.readFile file
+      forM_ (pairs ws) $ \(word,expected) -> do
         stemmed <- stemWith stemmer word
         when (stemmed /= expected) $
-          error . concat $ ["stem ", show algorithm, " ", Text.unpack word,
-                            " == ", Text.unpack stemmed,
-                            " /= ", Text.unpack expected]
+          error . concat $ ["stem ", show algorithm, " ", show $ Text.unpack word,
+                            " == ", show $ Text.unpack stemmed,
+                            " /= ", show $ Text.unpack expected]
