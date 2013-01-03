@@ -18,5 +18,6 @@ $(fixtures): %: %.xz
 test/fixtures: test/fixtures.hs
 	ghc -O "$<"
 
+.PHONY: test
 test: test/fixtures $(fixtures)
 	./test/fixtures $(fixtures)
