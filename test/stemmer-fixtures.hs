@@ -5,10 +5,8 @@ import           Control.Applicative ((<$>))
 import           Control.Monad       (forM)
 -------------------------------------------------------------------------------
 import           Data.Char           (toUpper)
-import qualified Data.Text           as Text
-import qualified Data.Text.IO        as Text
 -------------------------------------------------------------------------------
-import           NLP.Snowball        (Algorithm (..), stem)
+import           NLP.Stemmer         (Algorithm (..), stem)
 -------------------------------------------------------------------------------
 import           System.Environment  (getArgs)
 import           System.FilePath     (dropExtension, takeFileName)
@@ -32,7 +30,7 @@ main = do
     tests <- forM args $ \file -> do
       let name = dropExtension $ takeFileName file
           algorithm = read $ (toUpper $ head name) : (tail name)
-      ws <- Text.words <$> Text.readFile file
+      ws <- words <$> readFile file
       forM (pairs ws) $ \(word,expected) -> do
         let stemmed = stem algorithm word
         return $ stemmed == expected

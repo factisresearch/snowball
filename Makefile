@@ -21,3 +21,10 @@ test/snowball-fixtures: test/snowball-fixtures.hs
 .PHONY: test
 test: test/snowball-fixtures $(fixtures)
 	./test/snowball-fixtures $(fixtures)
+
+test/stemmer-fixtures: test/stemmer-fixtures.hs
+	ghc -O "$<"
+
+.PHONY: stemmer
+stemmer: test/stemmer-fixtures $(fixtures)
+	./test/stemmer-fixtures $(fixtures)
