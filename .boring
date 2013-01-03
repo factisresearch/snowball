@@ -1,5 +1,5 @@
 ^libstemmer_c.tgz$
 ^libstemmer_c(/|$)
 ^share/.+\.txt$
-^test/fixtures$
+^test/snowball-fixtures$
 .(o|hi)$

@@ -15,9 +15,9 @@ libstemmer_c.tgz:
 $(fixtures): %: %.xz
 	unxz -k "$<"
 
-test/fixtures: test/fixtures.hs
+test/snowball-fixtures: test/snowball-fixtures.hs
 	ghc -O "$<"
 
 .PHONY: test
-test: test/fixtures $(fixtures)
-	./test/fixtures $(fixtures)
+test: test/snowball-fixtures $(fixtures)
+	./test/snowball-fixtures $(fixtures)

@@ -127,7 +127,7 @@ library
 
 benchmark bench-snowball
   type             : exitcode-stdio-1.0
-  main-is          : Main.hs
+  main-is          : bench-snowball.hs
   hs-source-dirs   : bench
   default-language : Haskell2010
   ghc-options      : -Wall
@@ -139,7 +139,7 @@ benchmark bench-snowball
 
 test-suite test-snowball
   type             : exitcode-stdio-1.0
-  main-is          : Main.hs
+  main-is          : test-snowball.hs
   hs-source-dirs   : test
   default-language : Haskell2010
   ghc-options      : -Wall -fno-warn-orphans
