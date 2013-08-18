@@ -122,16 +122,16 @@ stemsWith (Stemmer mvar) ws =
 
 data Struct
 
-foreign import ccall unsafe "libstemmer.h sb_stemmer_new"
+foreign import ccall unsafe "sb_stemmer_new"
     sb_stemmer_new :: CString -> CString -> IO (Ptr Struct)
 
-foreign import ccall unsafe "libstemmer.h &sb_stemmer_delete"
+foreign import ccall unsafe "&sb_stemmer_delete"
     sb_stemmer_delete :: FunPtr (Ptr Struct -> IO ())
 
-foreign import ccall unsafe "libstemmer.h sb_stemmer_stem"
+foreign import ccall unsafe "sb_stemmer_stem"
     sb_stemmer_stem :: Ptr Struct -> CString -> CInt -> IO (CString)
 
-foreign import ccall unsafe "libstemmer.h sb_stemmer_length"
+foreign import ccall unsafe "sb_stemmer_length"
     sb_stemmer_length :: Ptr Struct -> IO CInt
 
 algorithmName :: Algorithm -> ByteString
