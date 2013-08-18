@@ -7,14 +7,14 @@ import           Control.Monad                 (forM)
 -------------------------------------------------------------------------------
 import           Data.Char                     (toUpper)
 -------------------------------------------------------------------------------
-import           NLP.Stemmer                   (Algorithm (..), stem)
+import           NLP.Stemmer                   (Stemmer (..), stem)
 -------------------------------------------------------------------------------
 import           System.Environment            (getArgs)
 import           System.FilePath               (dropExtension, takeFileName)
 -------------------------------------------------------------------------------
 
 
-deriving instance Read Algorithm
+deriving instance Read Stemmer
 
 -------------------------------------------------------------------------------
 
