@@ -16,14 +16,14 @@ $(fixtures): %: %.xz
 	unxz -k "$<"
 
 test/snowball-fixtures: test/snowball-fixtures.hs
-	ghc -O -threaded -rtsopts "$<"
+	ghc -O2 -threaded -rtsopts "$<"
 
 .PHONY: test
 test: test/snowball-fixtures $(fixtures)
 	./test/snowball-fixtures $(fixtures) +RTS -N
 
 test/stemmer-fixtures: test/stemmer-fixtures.hs
-	ghc -O -threaded -rtsopts "$<"
+	ghc -O2 -threaded -rtsopts "$<"
 
 .PHONY: stemmer
 stemmer: test/stemmer-fixtures $(fixtures)
