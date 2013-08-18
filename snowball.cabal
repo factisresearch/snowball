@@ -22,8 +22,6 @@ description   : The Snowball library is used to compute the stems of words
                 * Gets rid of the need for @stemWords@ by using rewrite
                   rules to make @map stem@ efficient
                 .
-                * Includes a more recent release of Snowball
-                .
                 * Attempts to comply with the Snowball licensing terms
                 .
                 * Supports @SafeHaskell@ when available and is otherwise
