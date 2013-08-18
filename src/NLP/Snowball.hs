@@ -71,7 +71,7 @@ stems algorithm ws =
       do stemmer <- newStemmer algorithm
          stemsWith stemmer ws
 
-{-# RULES "map/stem" forall a xs. map (stem a) xs = stems a xs #-}
+{-# RULES "map/stem" forall a. map (stem a) = stems a #-}
 
 
 -------------------------------------------------------------------------------
