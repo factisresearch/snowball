@@ -86,7 +86,7 @@ newStemmer algorithm =
       useAsCString (encodingName encoding) $ \utf8 ->
         do struct <- sb_stemmer_new name utf8
            when (struct == nullPtr) $
-             error "Text.Snowball.newStemmer: nullPtr"
+             error "NLP.Snowball.newStemmer: nullPtr"
            structPtr <- newForeignPtr sb_stemmer_delete struct
            converter <- open (converterName encoding) Nothing
            mvar <- newMVar (structPtr,converter)
