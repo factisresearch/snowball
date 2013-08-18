@@ -149,7 +149,7 @@ test-suite test-snowball
                      QuickCheck,
                      quickcheck-instances,
                      snowball,
-                     test-framework-hunit,
-                     test-framework-quickcheck2,
-                     test-framework-th,
+                     tasty,
+                     tasty-hunit,
+                     tasty-quickcheck,
                      text

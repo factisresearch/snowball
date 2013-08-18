@@ -5,23 +5,22 @@
 module Main (main) where
 
 -------------------------------------------------------------------------------
-import           Control.Applicative                  ((<$>))
-import           Control.Monad                        (forM_)
+import           Control.Applicative       ((<$>))
+import           Control.Monad             (forM_)
 -------------------------------------------------------------------------------
-import           Data.Text                            (Text)
-import qualified Data.Text                            as Text
-import qualified Data.Text.IO                         as Text
+import           Data.Text                 (Text)
+import qualified Data.Text                 as Text
+import qualified Data.Text.IO              as Text
 -------------------------------------------------------------------------------
 import           NLP.Snowball
 -------------------------------------------------------------------------------
-import           Test.Framework.Providers.HUnit       (testCase)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
-import           Test.Framework.TH                    (defaultMainGenerator)
-import           Test.HUnit                           (Assertion, assertBool)
-import           Test.QuickCheck                      (Arbitrary (..),
-                                                       Property, elements,
-                                                       (==>))
-import           Test.QuickCheck.Instances            ()
+import           Test.HUnit                (Assertion, assertBool)
+import           Test.QuickCheck           (Arbitrary (..), Property, elements,
+                                            (==>))
+import           Test.QuickCheck.Instances ()
+import           Test.Tasty
+import           Test.Tasty.HUnit          (testCase)
+import           Test.Tasty.QuickCheck     (testProperty)
 -------------------------------------------------------------------------------
 
 
@@ -51,4 +50,7 @@ case_english_dictionary = do
 -------------------------------------------------------------------------------
 
 main :: IO ()
-main = $defaultMainGenerator
+main = defaultMain $ testGroup "NLP.Snowball"
+    [ testProperty "stem not null" prop_stem_not_null
+    , testCase "english dictionary" case_english_dictionary
+    ]
