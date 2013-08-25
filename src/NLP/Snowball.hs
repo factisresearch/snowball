@@ -129,7 +129,7 @@ foreign import ccall unsafe "&sb_stemmer_delete"
     sb_stemmer_delete :: FunPtr (Ptr Struct -> IO ())
 
 foreign import ccall unsafe "sb_stemmer_stem"
-    sb_stemmer_stem :: Ptr Struct -> CString -> CInt -> IO (CString)
+    sb_stemmer_stem :: Ptr Struct -> CString -> CInt -> IO CString
 
 foreign import ccall unsafe "sb_stemmer_length"
     sb_stemmer_length :: Ptr Struct -> IO CInt
