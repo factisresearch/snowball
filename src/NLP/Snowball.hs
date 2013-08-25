@@ -78,17 +78,17 @@ stems algorithm ws =
 -------------------------------------------------------------------------------
 
 -- | A thread and memory safe Snowball stemmer instance.
-newtype Stemmer = Stemmer (MVar (ForeignPtr Struct,Converter))
+newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer,Converter))
 
 -- | Create a new reusable 'Stemmer' instance.
 newStemmer :: Algorithm  -> IO Stemmer
 newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
       useAsCString (encodingName encoding) $ \utf8 ->
-        do struct <- sb_stemmer_new name utf8
-           when (struct == nullPtr) $
+        do sb_stemmer <- sb_stemmer_new name utf8
+           when (sb_stemmer == nullPtr) $
              error "NLP.Snowball.newStemmer: nullPtr"
-           structPtr <- newForeignPtr sb_stemmer_delete struct
+           structPtr <- newForeignPtr sb_stemmer_delete sb_stemmer
            converter <- open (converterName encoding) Nothing
            mvar <- newMVar (structPtr,converter)
            return $ Stemmer mvar
@@ -109,31 +109,31 @@ stemWith stemmer word = do
 stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
 stemsWith (Stemmer mvar) ws =
     withMVar mvar $ \(structPtr,converter) ->
-      withForeignPtr structPtr $ \struct ->
+      withForeignPtr structPtr $ \sb_stemmer ->
         forM ws $ \word ->
           useAsCString (fromUnicode converter word) $ \word' ->
-            do ptr <- sb_stemmer_stem struct word' $
+            do ptr <- sb_stemmer_stem sb_stemmer word' $
                         fromIntegral $ Text.length word
-               len <- sb_stemmer_length struct
+               len <- sb_stemmer_length sb_stemmer
                bytes <- packCStringLen (ptr,fromIntegral len)
                return $ toUnicode converter bytes
 
 
 -------------------------------------------------------------------------------
 
-data Struct
+data SbStemmer
 
 foreign import ccall unsafe "sb_stemmer_new"
-    sb_stemmer_new :: CString -> CString -> IO (Ptr Struct)
+    sb_stemmer_new :: CString -> CString -> IO (Ptr SbStemmer)
 
 foreign import ccall unsafe "&sb_stemmer_delete"
-    sb_stemmer_delete :: FunPtr (Ptr Struct -> IO ())
+    sb_stemmer_delete :: FunPtr (Ptr SbStemmer -> IO ())
 
 foreign import ccall unsafe "sb_stemmer_stem"
-    sb_stemmer_stem :: Ptr Struct -> CString -> CInt -> IO CString
+    sb_stemmer_stem :: Ptr SbStemmer -> CString -> CInt -> IO CString
 
 foreign import ccall unsafe "sb_stemmer_length"
-    sb_stemmer_length :: Ptr Struct -> IO CInt
+    sb_stemmer_length :: Ptr SbStemmer -> IO CInt
 
 algorithmName :: Algorithm -> ByteString
 algorithmName algorithm =
