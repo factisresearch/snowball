@@ -19,12 +19,11 @@ module NLP.Snowball
 import           Control.Concurrent    (MVar, newMVar, withMVar)
 import           Control.Monad         (when)
 -------------------------------------------------------------------------------
+import qualified Data.ByteString       as ByteString
 import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
                                         useAsCString)
 import           Data.Text             (Text)
-import qualified Data.Text             as Text
-import           Data.Text.ICU.Convert (Converter, fromUnicode, open,
-                                        toUnicode)
+import           Data.Text.Encoding    (decodeUtf8, encodeUtf8)
 import           Data.Traversable      (Traversable, forM)
 -------------------------------------------------------------------------------
 import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
@@ -78,22 +77,19 @@ stems algorithm ws =
 -------------------------------------------------------------------------------
 
 -- | A thread and memory safe Snowball stemmer instance.
-newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer,Converter))
+newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer))
 
 -- | Create a new reusable 'Stemmer' instance.
 newStemmer :: Algorithm  -> IO Stemmer
 newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
-      useAsCString (encodingName encoding) $ \utf8 ->
+      useAsCString (pack "UTF_8") $ \utf8 ->
         do sb_stemmer <- sb_stemmer_new name utf8
            when (sb_stemmer == nullPtr) $
              error "NLP.Snowball.newStemmer: nullPtr"
            structPtr <- newForeignPtr sb_stemmer_delete sb_stemmer
-           converter <- open (converterName encoding) Nothing
-           mvar <- newMVar (structPtr,converter)
+           mvar <- newMVar structPtr
            return $ Stemmer mvar
-  where
-    encoding = algorithmEncoding algorithm
 
 -- | Use a 'Stemmer' to stem a word.  This can be used more efficiently
 --   than 'stem' because you can keep a stemmer around and reuse it, but it
@@ -108,15 +104,16 @@ stemWith stemmer word = do
 --   locked once.
 stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
 stemsWith (Stemmer mvar) ws =
-    withMVar mvar $ \(structPtr,converter) ->
+    withMVar mvar $ \structPtr ->
       withForeignPtr structPtr $ \sb_stemmer ->
-        forM ws $ \word ->
-          useAsCString (fromUnicode converter word) $ \word' ->
-            do ptr <- sb_stemmer_stem sb_stemmer word' $
-                        fromIntegral $ Text.length word
+        forM ws $ \word -> do
+          let word' = encodeUtf8 word
+          useAsCString word' $ \word'' ->
+            do ptr <- sb_stemmer_stem sb_stemmer word'' $
+                        fromIntegral $ ByteString.length word'
                len <- sb_stemmer_length sb_stemmer
                bytes <- packCStringLen (ptr,fromIntegral len)
-               return $ toUnicode converter bytes
+               return $ decodeUtf8 bytes
 
 
 -------------------------------------------------------------------------------
@@ -154,29 +151,3 @@ algorithmName algorithm =
       Swedish    -> pack "sv"
       Turkish    -> pack "tr"
       Porter     -> pack "porter"
-
-data Encoding = UTF_8 | ISO_8859_1 | ISO_8859_2 | KOI8_R
-
-encodingName :: Encoding -> ByteString
-encodingName encoding =
-    case encoding of
-      UTF_8      -> pack "UTF_8"
-      ISO_8859_1 -> pack "ISO_8859_1"
-      ISO_8859_2 -> pack "ISO_8859_2"
-      KOI8_R     -> pack "KOI8_R"
-
-converterName :: Encoding -> String
-converterName encoding =
-    case encoding of
-      UTF_8      -> "UTF-8"
-      ISO_8859_1 -> "ISO-8859-1"
-      ISO_8859_2 -> "ISO-8859-2"
-      KOI8_R     -> "KOI8-R"
-
-algorithmEncoding :: Algorithm -> Encoding
-algorithmEncoding algorithm =
-    case algorithm of
-      Romanian -> ISO_8859_2
-      Russian  -> KOI8_R
-      Turkish  -> UTF_8
-      _        -> ISO_8859_1
