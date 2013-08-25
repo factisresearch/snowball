@@ -17,7 +17,7 @@ module NLP.Snowball
 
 -------------------------------------------------------------------------------
 import           Control.Concurrent    (MVar, newMVar, withMVar)
-import           Control.Monad         (forM, when)
+import           Control.Monad         (when)
 -------------------------------------------------------------------------------
 import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
                                         useAsCString)
@@ -25,6 +25,7 @@ import           Data.Text             (Text)
 import qualified Data.Text             as Text
 import           Data.Text.ICU.Convert (Converter, fromUnicode, open,
                                         toUnicode)
+import           Data.Traversable      (Traversable, forM)
 -------------------------------------------------------------------------------
 import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
                                         nullPtr, withForeignPtr)
@@ -65,7 +66,7 @@ stem algorithm word = let [a] = stems algorithm [word] in a
 --   instance, however the @map@ version is rewritten to use this function
 --   with a rewrite rule.  You can still use this function though if you
 --   want to make sure it is used or if you find it more convenient.
-stems :: Algorithm -> [Text] -> [Text]
+stems :: (Traversable t) => Algorithm -> t Text -> t Text
 stems algorithm ws =
     unsafePerformIO $
       do stemmer <- newStemmer algorithm
@@ -105,7 +106,7 @@ stemWith stemmer word = do
 -- | Use a 'Stemmer' to stem multiple words in one go.  This can be more
 --   efficient than @'mapM' 'stemWith'@ because the 'Stemmer' is only
 --   locked once.
-stemsWith :: Stemmer -> [Text] -> IO [Text]
+stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
 stemsWith (Stemmer mvar) ws =
     withMVar mvar $ \(structPtr,converter) ->
       withForeignPtr structPtr $ \struct ->
