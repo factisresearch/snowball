@@ -7,6 +7,7 @@ module NLP.Snowball
       Algorithm(..)
     , stem
     , stems
+    , stems'
       -- * IO interface
     , Stemmer
     , newStemmer
@@ -53,17 +54,26 @@ data Algorithm
 stem :: Algorithm -> Text -> Text
 stem algorithm word = let [a] = stems algorithm [word] in a
 
--- | Compute the stems of several words in one go.  This can be more
--- efficient than @'map' 'stem'@ because it uses a single 'Stemmer'
--- instance, however the @map@ version is rewritten to use this function
--- with a rewrite rule.  You can still use this function though if you
--- want to make sure it is used or if you find it more convenient.
-stems :: (Traversable t) => Algorithm -> t Text -> t Text
-stems algorithm ws = unsafePerformIO $ do
-    stemmer <- newStemmer algorithm
-    stemsWith stemmer ws
+-- | Lazily map the 'stem' function over a 'Functor' while sharing
+-- a single 'Stemmer' instance.  The stemmer will be locked once for each
+-- word being stemmed, and discarded once every word has been stemmed or
+-- the result is discarded.
+stems :: (Functor f) => Algorithm -> f Text -> f Text
+stems algorithm =
+    fmap (unsafePerformIO . stemWith stemmer)
+  where
+    stemmer = unsafePerformIO $ newStemmer algorithm
 
 {-# RULES "map/stem" forall a. map (stem a) = stems a #-}
+{-# RULES "fmap/stem" forall a. fmap (stem a) = stems a #-}
+
+-- | Strictly map the 'stem' function over a 'Traversable' while sharing
+-- a single 'Stemmer' instance and locking it only once.  The stemmer is
+-- immediately discarded as garbage to be collected.
+stems' :: (Traversable t) => Algorithm -> t Text -> t Text
+stems' algorithm ws = unsafePerformIO $ do
+    stemmer <- newStemmer algorithm
+    stemsWith stemmer ws
 
 -- | A thread and memory safe Snowball stemmer instance.
 newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer))
