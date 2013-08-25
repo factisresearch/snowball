@@ -59,6 +59,7 @@ stem algorithm word = let [a] = stems algorithm [word] in a
 -- word being stemmed, and discarded once every word has been stemmed or
 -- the result is discarded.
 stems :: (Functor f) => Algorithm -> f Text -> f Text
+{-# INLINABLE stems #-}
 stems algorithm =
     fmap (unsafePerformIO . stemWith stemmer)
   where
@@ -71,6 +72,7 @@ stems algorithm =
 -- a single 'Stemmer' instance and locking it only once.  The stemmer is
 -- immediately discarded as garbage to be collected.
 stems' :: (Traversable t) => Algorithm -> t Text -> t Text
+{-# INLINABLE stems' #-}
 stems' algorithm ws = unsafePerformIO $ do
     stemmer <- newStemmer algorithm
     stemsWith stemmer ws
@@ -101,6 +103,7 @@ stemWith stemmer word = do
 -- efficient than @'mapM' 'stemWith'@ because the 'Stemmer' is only
 -- locked once.
 stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
+{-# INLINABLE stemsWith #-}
 stemsWith (Stemmer mvar) ws =
     withMVar mvar $ \foreignPtr ->
     withForeignPtr foreignPtr $ \sb_stemmer ->
