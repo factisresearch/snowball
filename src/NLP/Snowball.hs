@@ -7,7 +7,6 @@ module NLP.Snowball
       Algorithm(..)
     , stem
     , stems
-    , stems'
       -- * IO interface
     , Stemmer
     , newStemmer
@@ -52,28 +51,16 @@ data Algorithm
 -- >>> stem English "fantastically"
 -- "fantast"
 stem :: Algorithm -> Text -> Text
-stem algorithm word = let [a] = stems algorithm [word] in a
-
--- | Lazily map the 'stem' function over a 'Functor' while sharing
--- a single 'Stemmer' instance.  The stemmer will be locked once for each
--- word being stemmed, and discarded once every word has been stemmed or
--- the result is discarded.
-stems :: (Functor f) => Algorithm -> f Text -> f Text
-{-# INLINABLE stems #-}
-stems algorithm =
-    fmap (unsafePerformIO . stemWith stemmer)
+stem algorithm =
+    unsafePerformIO . stemWith stemmer
   where
     stemmer = unsafePerformIO $ newStemmer algorithm
 
-{-# RULES "map/stem" forall a. map (stem a) = stems a #-}
-{-# RULES "fmap/stem" forall a. fmap (stem a) = stems a #-}
-
 -- | Strictly map the 'stem' function over a 'Traversable' while sharing
--- a single 'Stemmer' instance and locking it only once.  The stemmer is
--- immediately discarded as garbage to be collected.
-stems' :: (Traversable t) => Algorithm -> t Text -> t Text
-{-# INLINABLE stems' #-}
-stems' algorithm ws = unsafePerformIO $ do
+-- a single 'Stemmer' instance and locking it only once.
+stems :: (Traversable t) => Algorithm -> t Text -> t Text
+{-# INLINABLE stems #-}
+stems algorithm ws = unsafePerformIO $ do
     stemmer <- newStemmer algorithm
     stemsWith stemmer ws
 

@@ -19,8 +19,8 @@ description   : The Snowball library is used to compute the stems of words
                 .
                 * Uses Text rather than String
                 .
-                * Gets rid of the need for @stemWords@ by using rewrite
-                  rules to make @map stem@ efficient
+                * Gets rid of the need for @stemWords@ by letting the compiler
+                  decide the sharing of stemmer instances
                 .
                 * Attempts to comply with the Snowball licensing terms
                 .

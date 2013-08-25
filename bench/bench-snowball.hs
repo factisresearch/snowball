@@ -32,20 +32,14 @@ main = do
 bench_stem :: [Text] -> Pure
 bench_stem = nf $ foldr ((:) . stem English) []
 
-bench_map_stem :: [Text] -> Pure
-bench_map_stem = nf $ map (stem English)
-
 bench_fmap_stem :: [Text] -> Pure
 bench_fmap_stem = nf $ fmap (stem English)
 
 bench_stems :: [Text] -> Pure
 bench_stems = nf $ stems English
 
-bench_stems' :: [Text] -> Pure
-bench_stems' = nf $ stems' English
-
-bench_stems'_whnf :: [Text] -> Pure
-bench_stems'_whnf = whnf $ stems' English
+bench_stems_whnf :: [Text] -> Pure
+bench_stems_whnf = whnf $ stems English
 
 bench_stemWith :: [Text] -> IO [Text]
 bench_stemWith ws = do
