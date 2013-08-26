@@ -1,5 +1,5 @@
 -- |
--- Portability: Haskell2010
+-- Portability: Haskell2010 plus text
 --
 -- Bindings to the Snowball library.
 module NLP.Snowball
@@ -67,7 +67,7 @@ stems algorithm ws = unsafePerformIO $ do
 -- | A thread and memory safe Snowball stemmer instance.
 newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer))
 
--- | Create a new reusable 'Stemmer' instance.
+-- | Create a new 'Stemmer' instance for the given 'Algorithm'.
 newStemmer :: Algorithm -> IO Stemmer
 newStemmer algorithm =
     useAsCString (algorithmName algorithm) $ \name ->
@@ -78,17 +78,16 @@ newStemmer algorithm =
         mvar <- newMVar foreignPtr
         return $ Stemmer mvar
 
--- | Use a 'Stemmer' to stem a word.  This can be used more efficiently
--- than 'stem' because you can keep a stemmer around and reuse it, but it
--- requires 'IO' to ensure thread safety.
+-- | Compute the stem of a single word.  The 'Stemmer' will be locked and
+-- unlocked once for each call to this function.
 stemWith :: Stemmer -> Text -> IO Text
 stemWith stemmer word = do
     [a] <- stemsWith stemmer [word]
     return a
 
--- | Use a 'Stemmer' to stem multiple words in one go.  This can be more
--- efficient than @'mapM' 'stemWith'@ because the 'Stemmer' is only
--- locked once.
+-- | Compute stems for every word in a 'Traversable'.  The 'Stemmer' will
+-- be locked and unlocked once for each call to this function, independent
+-- of the number of words getting stemmed.
 stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
 {-# INLINABLE stemsWith #-}
 stemsWith (Stemmer mvar) ws =

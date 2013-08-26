@@ -4,37 +4,34 @@ homepage      : http://hub.darcs.net/dag/snowball
 bug-reports   : http://hub.darcs.net/dag/snowball/issues
 category      : Natural Language Processing, Text
 maintainer    : dag.odenhall@gmail.com
-copyright     : (c) 2012 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
-synopsis      : Bindings to the Snowball library.
-description   : The Snowball library is used to compute the stems of words
-                in natural languages.
-                .
-                Compared to the older <stemmer> package, this one:
-                .
-                * Correctly handles unicode without relying on the system
-                  locale
-                .
-                * Takes greater care to avoid memory leaks and to be thread
-                  safe
-                .
-                * Uses Text rather than String
-                .
-                * Gets rid of the need for @stemWords@ by letting the compiler
-                  decide the sharing of stemmer instances
-                .
-                * Attempts to comply with the Snowball licensing terms
-                .
-                * Supports @SafeHaskell@ when available and is otherwise
-                  @Haskell2010@
-                .
-                * Comes with a test suite
-                .
-                However, although this code is written from scratch, it is
-                heavily modeled after the code of the \"stemmer\" package.
+copyright     : (c) 2013 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
 license       : BSD3
 license-file  : LICENSE
 cabal-version : >= 1.10
 build-type    : Simple
+
+synopsis      : Compute word stems in various languages
+description   :
+  <http://snowball.tartarus.org/ Snowball> is a language for describing
+  <https://en.wikipedia.org/wiki/Stemming stemming algorithms>, and this
+  package provides bindings to the C library that implements these algorithms,
+  called libstemmer.
+  .
+  Here's a quick example:
+  .
+  >>> stem English "computing" == stem English "computers"
+  True
+  .
+  The design is heavily influenced by the <stemmer> package, but with a number
+  of improvements:
+  .
+  * It's about 5 times faster
+  .
+  * Handles Unicode correctly and independently of the system locale
+  .
+  * Avoids some potential memory leaks and is thread-safe
+  .
+  * Includes tests and benchmarks
 
 extra-source-files : libstemmer_c/src_c/stem_UTF_8_danish.h
                      libstemmer_c/src_c/stem_UTF_8_dutch.h
