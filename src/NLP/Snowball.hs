@@ -22,8 +22,8 @@ import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
 import           Data.Text             (Text)
 import           Data.Text.Encoding    (decodeUtf8, encodeUtf8)
 import           Data.Traversable      (Traversable, forM)
-import           Foreign               (ForeignPtr, FunPtr, Ptr, newForeignPtr,
-                                        nullPtr, withForeignPtr)
+import           Foreign               (FinalizerPtr, ForeignPtr, Ptr,
+                                        newForeignPtr, nullPtr, withForeignPtr)
 import           Foreign.C             (CInt (..), CString)
 import           System.IO.Unsafe      (unsafePerformIO)
 
@@ -109,7 +109,7 @@ foreign import ccall unsafe "sb_stemmer_new"
     sb_stemmer_new :: CString -> CString -> IO (Ptr SbStemmer)
 
 foreign import ccall unsafe "&sb_stemmer_delete"
-    sb_stemmer_delete :: FunPtr (Ptr SbStemmer -> IO ())
+    sb_stemmer_delete :: FinalizerPtr SbStemmer
 
 foreign import ccall unsafe "sb_stemmer_stem"
     sb_stemmer_stem :: Ptr SbStemmer -> CString -> CInt -> IO CString
