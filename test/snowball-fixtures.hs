@@ -9,7 +9,7 @@ import           Data.Char                (toUpper)
 import qualified Data.Text                as Text
 import qualified Data.Text.IO             as Text
 -------------------------------------------------------------------------------
-import           NLP.Snowball             (Algorithm (..), stem)
+import           NLP.Snowball             (Algorithm (..), newStemmer, stemWith)
 -------------------------------------------------------------------------------
 import           System.Environment       (getArgs)
 import           System.FilePath          (dropExtension, takeFileName)
@@ -32,10 +32,11 @@ main = do
     args <- getArgs
     tests <- flip mapConcurrently args $ \file -> do
       let name = dropExtension $ takeFileName file
-          algorithm = read $ (toUpper $ head name) : (tail name)
+          algorithm = read $ toUpper (head name) : tail name
       ws <- Text.words <$> Text.readFile file
+      stemmer <- newStemmer algorithm
       forM (pairs ws) $ \(word,expected) -> do
-        let stemmed = stem algorithm word
+        stemmed <- stemWith stemmer word
         return $ stemmed == expected
     let hits = length $ filter id $ concat tests
         misses = length $ filter not $ concat tests
