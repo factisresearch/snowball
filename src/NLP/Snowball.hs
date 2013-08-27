@@ -96,9 +96,8 @@ data Stemmer = Stemmer !Algorithm !(MVar (ForeignPtr SbStemmer))
 -- | Create a new 'Stemmer' instance for the given 'Algorithm'.
 newStemmer :: Algorithm -> IO Stemmer
 newStemmer algorithm' =
-    useAsCString (algorithmName algorithm') $ \name ->
-    useAsCString (pack "UTF_8") $ \utf8 -> do
-        sb_stemmer <- sb_stemmer_new name utf8
+    useAsCString (algorithmName algorithm') $ \name -> do
+        sb_stemmer <- sb_stemmer_new name nullPtr
         when (sb_stemmer == nullPtr) $ error "NLP.Snowball.newStemmer: nullPtr"
         foreignPtr <- newForeignPtr sb_stemmer_delete sb_stemmer
         mvar <- newMVar foreignPtr
