@@ -4,17 +4,22 @@
 -- Bindings to the Snowball library.
 module NLP.Snowball
     ( -- * Pure interface
-      Algorithm(..)
-    , stem
+      stem
     , stems
+    , algorithm
+    , text
       -- * IO interface
-    , Stemmer
     , newStemmer
     , stemWith
     , stemsWith
+      -- * Types
+    , Algorithm(..)
+    , Stem
+    , Stemmer
     ) where
 
 import           Control.Concurrent    (MVar, newMVar, withMVar)
+import           Control.DeepSeq       (NFData)
 import           Control.Monad         (when)
 import qualified Data.ByteString       as ByteString
 import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
@@ -45,42 +50,63 @@ data Algorithm
     | Swedish
     | Turkish
     | Porter -- ^ Use 'English' instead.
+    deriving (Eq, Ord)
 
--- | Compute the stem of a word using the specified algorithm.
+instance NFData Algorithm
+
+-- | A 'Stem' can only be created by stemming a word, and two stems are
+-- only considered equal if both the 'Algorithm' used and the computed
+-- stems are equal.
+data Stem = Stem !Algorithm !ByteString deriving (Eq, Ord)
+
+instance Show Stem where
+    show = show . text
+
+instance NFData Stem
+
+-- | Get back the 'Algorithm' that was used to compute a 'Stem'.
+algorithm :: Stem -> Algorithm
+algorithm (Stem algorithm' _) = algorithm'
+
+-- | Decode a computed 'Stem' into a 'Text' value.
+text :: Stem -> Text
+text (Stem _ bytes) = decodeUtf8 bytes
+
+-- | Compute the 'Stem' of a word using the specified 'Algorithm'.
 --
 -- >>> stem English "fantastically"
 -- "fantast"
-stem :: Algorithm -> Text -> Text
-stem algorithm =
+stem :: Algorithm -> Text -> Stem
+stem algorithm' =
     unsafePerformIO . stemWith stemmer
   where
-    stemmer = unsafePerformIO $ newStemmer algorithm
+    stemmer = unsafePerformIO $ newStemmer algorithm'
 
 -- | Strictly map the 'stem' function over a 'Traversable' while sharing
 -- a single 'Stemmer' instance and locking it only once.
-stems :: (Traversable t) => Algorithm -> t Text -> t Text
+stems :: (Traversable t) => Algorithm -> t Text -> t Stem
 {-# INLINABLE stems #-}
-stems algorithm ws = unsafePerformIO $ do
-    stemmer <- newStemmer algorithm
+stems algorithm' ws = unsafePerformIO $ do
+    stemmer <- newStemmer algorithm'
     stemsWith stemmer ws
 
 -- | A thread and memory safe Snowball stemmer instance.
-newtype Stemmer = Stemmer (MVar (ForeignPtr SbStemmer))
+data Stemmer = Stemmer !Algorithm !(MVar (ForeignPtr SbStemmer))
 
 -- | Create a new 'Stemmer' instance for the given 'Algorithm'.
 newStemmer :: Algorithm -> IO Stemmer
-newStemmer algorithm =
-    useAsCString (algorithmName algorithm) $ \name ->
+newStemmer algorithm' =
+    useAsCString (algorithmName algorithm') $ \name ->
     useAsCString (pack "UTF_8") $ \utf8 -> do
         sb_stemmer <- sb_stemmer_new name utf8
         when (sb_stemmer == nullPtr) $ error "NLP.Snowball.newStemmer: nullPtr"
         foreignPtr <- newForeignPtr sb_stemmer_delete sb_stemmer
         mvar <- newMVar foreignPtr
-        return $ Stemmer mvar
+        return $ Stemmer algorithm' mvar
 
 -- | Compute the stem of a single word.  The 'Stemmer' will be locked and
 -- unlocked once for each call to this function.
-stemWith :: Stemmer -> Text -> IO Text
+stemWith :: Stemmer -> Text -> IO Stem
 stemWith stemmer word = do
     [a] <- stemsWith stemmer [word]
     return a
@@ -88,9 +114,9 @@ stemWith stemmer word = do
 -- | Compute stems for every word in a 'Traversable'.  The 'Stemmer' will
 -- be locked and unlocked once for each call to this function, independent
 -- of the number of words getting stemmed.
-stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Text)
+stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Stem)
 {-# INLINABLE stemsWith #-}
-stemsWith (Stemmer mvar) ws =
+stemsWith (Stemmer algorithm' mvar) ws =
     withMVar mvar $ \foreignPtr ->
     withForeignPtr foreignPtr $ \sb_stemmer ->
     forM ws $ \word -> do
@@ -100,7 +126,7 @@ stemsWith (Stemmer mvar) ws =
             ptr <- sb_stemmer_stem sb_stemmer word'' size
             len <- sb_stemmer_length sb_stemmer
             bytes <- packCStringLen (ptr,fromIntegral len)
-            return $ decodeUtf8 bytes
+            return $ Stem algorithm' bytes
 
 data SbStemmer
 

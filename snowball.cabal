@@ -25,13 +25,11 @@ description   :
   The design is heavily influenced by the <stemmer> package, but with a number
   of improvements:
   .
-  * It's about 5 times faster
+  [Safety] type-safe, thread-safe, memory-safe
   .
-  * Handles Unicode correctly and independently of the system locale
+  [Performance] about 5 times faster
   .
-  * Avoids some potential memory leaks and is thread-safe
-  .
-  * Includes tests and benchmarks
+  [Correctness] handles Unicode and includes tests
 
 extra-source-files : libstemmer_c/src_c/stem_UTF_8_danish.h
                      libstemmer_c/src_c/stem_UTF_8_dutch.h
@@ -85,6 +83,7 @@ library
   exposed-modules  : NLP.Snowball
   build-depends    : base == 4.*,
                      bytestring,
+                     deepseq,
                      text
   if impl(ghc >= 7.2)
     default-extensions : Trustworthy

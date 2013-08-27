@@ -41,12 +41,12 @@ bench_stems = nf $ stems English
 bench_stems_whnf :: [Text] -> Pure
 bench_stems_whnf = whnf $ stems English
 
-bench_stemWith :: [Text] -> IO [Text]
+bench_stemWith :: [Text] -> IO [Stem]
 bench_stemWith ws = do
     english <- newStemmer English
     mapM (stemWith english) ws
 
-bench_stemsWith :: [Text] -> IO [Text]
+bench_stemsWith :: [Text] -> IO [Stem]
 bench_stemsWith ws = do
     english <- newStemmer English
     stemsWith english ws

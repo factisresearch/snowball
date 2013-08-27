@@ -36,7 +36,7 @@ instance Arbitrary Algorithm where
 
 prop_stem_not_null :: Algorithm -> Text -> Property
 prop_stem_not_null algorithm txt =
-    not (Text.null txt) ==> not (Text.null $ stem algorithm txt)
+    not (Text.null txt) ==> not (Text.null . text $ stem algorithm txt)
 
 case_english_dictionary :: Assertion
 case_english_dictionary = do
@@ -44,7 +44,7 @@ case_english_dictionary = do
     english <- newStemmer English
     forM_ ws $ \word -> do
       stemmed <- stemWith english word
-      assertBool "not null" $ not (Text.null stemmed)
+      assertBool "not null" $ not (Text.null . text $ stemmed)
 
 
 -------------------------------------------------------------------------------
