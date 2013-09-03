@@ -1,6 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Main (main) where
 
@@ -13,6 +11,7 @@ import qualified Data.Text                 as Text
 import qualified Data.Text.IO              as Text
 -------------------------------------------------------------------------------
 import           NLP.Snowball
+import qualified NLP.Snowball.IO           as Stemmer
 -------------------------------------------------------------------------------
 import           Test.HUnit                (Assertion, assertBool)
 import           Test.QuickCheck           (Arbitrary (..), Property, elements,
@@ -24,10 +23,6 @@ import           Test.Tasty.QuickCheck     (testProperty)
 -------------------------------------------------------------------------------
 
 
-deriving instance Bounded Algorithm
-deriving instance Enum Algorithm
-deriving instance Show Algorithm
-
 instance Arbitrary Algorithm where
     arbitrary = elements [minBound ..]
 
@@ -36,15 +31,15 @@ instance Arbitrary Algorithm where
 
 prop_stem_not_null :: Algorithm -> Text -> Property
 prop_stem_not_null algorithm txt =
-    not (Text.null txt) ==> not (Text.null . text $ stem algorithm txt)
+    not (Text.null txt) ==> not (Text.null . stemText $ stem algorithm txt)
 
 case_english_dictionary :: Assertion
 case_english_dictionary = do
     ws <- Text.lines <$> Text.readFile "/usr/share/dict/words"
-    english <- newStemmer English
+    english <- Stemmer.new English
     forM_ ws $ \word -> do
-      stemmed <- stemWith english word
-      assertBool "not null" $ not (Text.null . text $ stemmed)
+      stemmed <- Stemmer.stem english word
+      assertBool "not null" $ not (Text.null . stemText $ stemmed)
 
 
 -------------------------------------------------------------------------------

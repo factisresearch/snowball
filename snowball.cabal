@@ -1,118 +1,181 @@
-name          : snowball
-version       : 1.0.0.1
-homepage      : http://hub.darcs.net/dag/snowball
-bug-reports   : http://hub.darcs.net/dag/snowball/issues
-category      : Natural Language Processing, Text
-maintainer    : dag.odenhall@gmail.com
-copyright     : (c) 2013 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
-license       : BSD3
-license-file  : LICENSE
-cabal-version : >= 1.10
-build-type    : Simple
+name: snowball
+version: 2.0.0.0
 
-synopsis      : Compute word stems in various languages
-description   :
-  <http://snowball.tartarus.org/ Snowball> is a language for describing
-  <https://en.wikipedia.org/wiki/Stemming stemming algorithms>, and this
-  package provides bindings to the C library that implements these algorithms,
-  called libstemmer.
-  .
-  Here's a quick example:
-  .
-  >>> stem English "computing" == stem English "computers"
-  True
-  .
-  The design is heavily influenced by the <stemmer> package, but with a number
-  of improvements:
-  .
-  [Safety] type-safe, thread-safe, memory-safe
-  .
-  [Performance] about 5 times faster
-  .
-  [Correctness] handles Unicode and includes tests
+category: Natural Language Processing, Text
+synopsis: Compute word stems in various languages
 
-extra-source-files : libstemmer_c/src_c/stem_UTF_8_danish.h
-                     libstemmer_c/src_c/stem_UTF_8_dutch.h
-                     libstemmer_c/src_c/stem_UTF_8_english.h
-                     libstemmer_c/src_c/stem_UTF_8_finnish.h
-                     libstemmer_c/src_c/stem_UTF_8_french.h
-                     libstemmer_c/src_c/stem_UTF_8_german.h
-                     libstemmer_c/src_c/stem_UTF_8_hungarian.h
-                     libstemmer_c/src_c/stem_UTF_8_italian.h
-                     libstemmer_c/src_c/stem_UTF_8_norwegian.h
-                     libstemmer_c/src_c/stem_UTF_8_porter.h
-                     libstemmer_c/src_c/stem_UTF_8_portuguese.h
-                     libstemmer_c/src_c/stem_UTF_8_romanian.h
-                     libstemmer_c/src_c/stem_UTF_8_russian.h
-                     libstemmer_c/src_c/stem_UTF_8_spanish.h
-                     libstemmer_c/src_c/stem_UTF_8_swedish.h
-                     libstemmer_c/src_c/stem_UTF_8_turkish.h
-                     libstemmer_c/include/libstemmer.h
-                     libstemmer_c/libstemmer/modules_utf8.h
-                     libstemmer_c/runtime/api.h
-                     libstemmer_c/runtime/header.h
-                     libstemmer_c/LICENSE
+description:
+    <http://snowball.tartarus.org/ Snowball> is a language for describing
+    <https://en.wikipedia.org/wiki/Stemming stemming algorithms>, and this
+    package provides bindings to the C library that implements these
+    algorithms, called libstemmer.
+    .
+    Here's a quick example:
+    .
+    >>> stem English "computing" == stem English "computers"
+    True
+    .
+    The design is originally influenced heavily by the <stemmer> package, but
+    with a number of improvements:
+    .
+    [Safety] type-safe, thread-safe, memory-safe
+    .
+    [Performance] more than 5 times faster
+    .
+    [Correctness] extensively tested and properly deals with Unicode
+    .
+    [Power] optional low-level interfaces
+    .
+    As a simple comparison, stemming the 453 732 words in the test data files
+    provided by the upstream Snowball distribution takes the @stemmer@ package
+    about five seconds on my machine, and it gets 93 947 stems wrong.
+    .
+    This package on the other hand gets all stems right in less than a second.
 
-source-repository head
-  type     : darcs
-  location : http://hub.darcs.net/dag/snowball
+copyright: (c) 2013 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
+license-file: LICENSE
+license: BSD3
+maintainer: dag.odenhall@gmail.com
 
-library
-  hs-source-dirs   : src
-  default-language : Haskell2010
-  ghc-options      : -Wall
-  c-sources        : libstemmer_c/src_c/stem_UTF_8_danish.c
-                     libstemmer_c/src_c/stem_UTF_8_dutch.c
-                     libstemmer_c/src_c/stem_UTF_8_english.c
-                     libstemmer_c/src_c/stem_UTF_8_finnish.c
-                     libstemmer_c/src_c/stem_UTF_8_french.c
-                     libstemmer_c/src_c/stem_UTF_8_german.c
-                     libstemmer_c/src_c/stem_UTF_8_hungarian.c
-                     libstemmer_c/src_c/stem_UTF_8_italian.c
-                     libstemmer_c/src_c/stem_UTF_8_norwegian.c
-                     libstemmer_c/src_c/stem_UTF_8_porter.c
-                     libstemmer_c/src_c/stem_UTF_8_portuguese.c
-                     libstemmer_c/src_c/stem_UTF_8_romanian.c
-                     libstemmer_c/src_c/stem_UTF_8_russian.c
-                     libstemmer_c/src_c/stem_UTF_8_spanish.c
-                     libstemmer_c/src_c/stem_UTF_8_swedish.c
-                     libstemmer_c/src_c/stem_UTF_8_turkish.c
-                     libstemmer_c/runtime/api.c
-                     libstemmer_c/runtime/utilities.c
-                     libstemmer_c/libstemmer/libstemmer_utf8.c
-  exposed-modules  : NLP.Snowball
-  build-depends    : base == 4.*,
-                     bytestring,
-                     deepseq,
-                     text
-  if impl(ghc >= 7.2)
-    default-extensions : Trustworthy
+build-type: Simple
+cabal-version: >= 1.10
+extra-source-files: libstemmer_c/include/libstemmer.h
+extra-source-files: libstemmer_c/libstemmer/modules.h
+extra-source-files: libstemmer_c/LICENSE
+extra-source-files: libstemmer_c/runtime/*.h
+extra-source-files: libstemmer_c/src_c/*.h
 
-benchmark bench-snowball
-  type             : exitcode-stdio-1.0
-  main-is          : bench-snowball.hs
-  hs-source-dirs   : bench
-  default-language : Haskell2010
-  ghc-options      : -Wall
-  build-depends    : base == 4.*,
-                     criterion,
-                     language-haskell-extract,
-                     snowball,
-                     text
+bug-reports: http://hub.darcs.net/dag/snowball/issues
+homepage: http://hub.darcs.net/dag/snowball
 
-test-suite test-snowball
-  type             : exitcode-stdio-1.0
-  main-is          : test-snowball.hs
-  hs-source-dirs   : test
-  default-language : Haskell2010
-  ghc-options      : -Wall -fno-warn-orphans
-                     -threaded -rtsopts -with-rtsopts=-N
-  build-depends    : base == 4.*,
-                     HUnit,
-                     QuickCheck,
-                     quickcheck-instances,
-                     snowball,
-                     tasty,
-                     tasty-hunit,
-                     tasty-quickcheck,
-                     text
+SOURCE-REPOSITORY head
+    location: http://hub.darcs.net/dag/snowball
+    type: darcs
+
+LIBRARY
+    hs-source-dirs: src
+    default-language: Haskell2010
+    ghc-options: -Wall
+
+    includes: libstemmer_c/include/libstemmer.h
+    includes: libstemmer_c/libstemmer/modules.h
+    -- includes: libstemmer_c/runtime/api.h
+    includes: libstemmer_c/runtime/header.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_danish.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_dutch.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_english.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_finnish.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_french.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_german.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_hungarian.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_italian.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_norwegian.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_porter.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_portuguese.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_spanish.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_1_swedish.h
+    includes: libstemmer_c/src_c/stem_ISO_8859_2_romanian.h
+    includes: libstemmer_c/src_c/stem_KOI8_R_russian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_danish.h
+    includes: libstemmer_c/src_c/stem_UTF_8_dutch.h
+    includes: libstemmer_c/src_c/stem_UTF_8_english.h
+    includes: libstemmer_c/src_c/stem_UTF_8_finnish.h
+    includes: libstemmer_c/src_c/stem_UTF_8_french.h
+    includes: libstemmer_c/src_c/stem_UTF_8_german.h
+    includes: libstemmer_c/src_c/stem_UTF_8_hungarian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_italian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_norwegian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_porter.h
+    includes: libstemmer_c/src_c/stem_UTF_8_portuguese.h
+    includes: libstemmer_c/src_c/stem_UTF_8_romanian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_russian.h
+    includes: libstemmer_c/src_c/stem_UTF_8_spanish.h
+    includes: libstemmer_c/src_c/stem_UTF_8_swedish.h
+    includes: libstemmer_c/src_c/stem_UTF_8_turkish.h
+
+    c-sources: libstemmer_c/libstemmer/libstemmer.c
+    c-sources: libstemmer_c/runtime/api.c
+    c-sources: libstemmer_c/runtime/utilities.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_danish.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_dutch.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_english.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_finnish.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_french.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_german.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_hungarian.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_italian.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_norwegian.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_porter.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_portuguese.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_spanish.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_swedish.c
+    c-sources: libstemmer_c/src_c/stem_ISO_8859_2_romanian.c
+    c-sources: libstemmer_c/src_c/stem_KOI8_R_russian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_danish.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_dutch.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_english.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_finnish.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_french.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_german.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_hungarian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_italian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_norwegian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_porter.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_portuguese.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_romanian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_russian.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_spanish.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_swedish.c
+    c-sources: libstemmer_c/src_c/stem_UTF_8_turkish.c
+
+    exposed-modules: NLP.Snowball
+    exposed-modules: NLP.Snowball.Common
+    exposed-modules: NLP.Snowball.Internal
+    exposed-modules: NLP.Snowball.IO
+    exposed-modules: NLP.Snowball.IO.Unsafe
+    exposed-modules: NLP.Snowball.IO.Unsafe.C
+    exposed-modules: NLP.Snowball.ST
+    exposed-modules: NLP.Snowball.ST.Lazy
+
+    build-depends: base == 4.*
+    build-depends: bytestring
+    build-depends: deepseq
+    build-depends: text
+
+    if impl(ghc >= 7.1)
+        cpp-options: -DSAFE_HASKELL
+
+BENCHMARK bench-snowball
+    type: exitcode-stdio-1.0
+    main-is: bench-snowball.hs
+    hs-source-dirs: bench
+    default-language: Haskell2010
+    ghc-options: -Wall
+
+    build-depends: base == 4.*
+    build-depends: criterion
+    build-depends: language-haskell-extract
+    build-depends: snowball
+    build-depends: text
+
+TEST-SUITE test-snowball
+    type: exitcode-stdio-1.0
+    main-is: test-snowball.hs
+    hs-source-dirs: test
+    default-language: Haskell2010
+    ghc-options: -Wall
+
+    ghc-options: -fno-warn-orphans
+    ghc-options: -rtsopts
+    ghc-options: -threaded
+    ghc-options: -with-rtsopts=-N
+
+    build-depends: base == 4.*
+    build-depends: HUnit
+    build-depends: QuickCheck
+    build-depends: quickcheck-instances
+    build-depends: snowball
+    build-depends: tasty
+    build-depends: tasty-hunit
+    build-depends: tasty-quickcheck
+    build-depends: text

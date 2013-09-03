@@ -15,6 +15,7 @@ import qualified Data.Text.IO             as Text
 import           Language.Haskell.Extract (functionExtractorMap)
 -------------------------------------------------------------------------------
 import           NLP.Snowball
+import qualified NLP.Snowball.IO          as Stemmer
 -------------------------------------------------------------------------------
 
 main :: IO ()
@@ -38,15 +39,13 @@ bench_fmap_stem = nf $ fmap (stem English)
 bench_stems :: [Text] -> Pure
 bench_stems = nf $ stems English
 
-bench_stems_whnf :: [Text] -> Pure
-bench_stems_whnf = whnf $ stems English
+bench_stems' :: [Text] -> Pure
+bench_stems' = nf $ stems' English
 
-bench_stemWith :: [Text] -> IO [Stem]
-bench_stemWith ws = do
-    english <- newStemmer English
-    mapM (stemWith english) ws
+bench_stems'_whnf :: [Text] -> Pure
+bench_stems'_whnf = whnf $ stems' English
 
-bench_stemsWith :: [Text] -> IO [Stem]
-bench_stemsWith ws = do
-    english <- newStemmer English
-    stemsWith english ws
+bench_stem_IO :: [Text] -> IO [Stem]
+bench_stem_IO ws = do
+    english <- Stemmer.new English
+    mapM (Stemmer.stem english) ws

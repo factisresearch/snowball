@@ -1,160 +1,92 @@
+{-# LANGUAGE CPP #-}
+
+#ifdef SAFE_HASKELL
+{-# LANGUAGE Trustworthy #-}
+#endif
+
 -- |
--- Portability: Haskell2010 plus text
+-- Maintainer: dag.odenhall@gmail.com
+-- Stability: experimental
+-- Portability: non-portable
 --
--- Bindings to the Snowball library.
+-- You can do everything with only 'stem', 'Algorithm' and 'stemText'.  The
+-- rest is provided for heavy-duty use with varying trade-offs.
+--
+-- ["NLP.Snowball"] Provides simplicity in the form of pure wrappers around
+-- the other interfaces.
+--
+-- ["NLP.Snowball.IO"] Provides space-efficiency by allowing stemmers to be
+-- shared safely, even between threads.
+--
+-- ["NLP.Snowball.ST" and "NLP.Snowball.ST.Lazy"] Provide time-efficiency for
+-- bulk operations by restricting stemmers to single-threaded use, thus
+-- avoiding the need for locks.
+--
+-- ["NLP.Snowball.IO.Unsafe"] May provide even better space and time
+-- efficiency than the other interfaces, but at the expense of safety.
 module NLP.Snowball
-    ( -- * Pure interface
+    ( -- * High-level safe Text interface
       stem
     , stems
-    , algorithm
-    , text
-      -- * IO interface
-    , newStemmer
-    , stemWith
-    , stemsWith
-      -- * Types
-    , Algorithm(..)
-    , Stem
-    , Stemmer
+    , stems'
+    , module NLP.Snowball.Common
     ) where
 
-import           Control.Concurrent    (MVar, newMVar, withMVar)
-import           Control.DeepSeq       (NFData)
-import           Control.Monad         (when)
-import qualified Data.ByteString       as ByteString
-import           Data.ByteString.Char8 (ByteString, pack, packCStringLen,
-                                        useAsCString)
-import           Data.Text             (Text)
-import           Data.Text.Encoding    (decodeUtf8, encodeUtf8)
-import           Data.Traversable      (Traversable, forM)
-import           Foreign               (FinalizerPtr, ForeignPtr, Ptr,
-                                        newForeignPtr, nullPtr, withForeignPtr)
-import           Foreign.C             (CInt (..), CString)
-import           System.IO.Unsafe      (unsafePerformIO)
+import NLP.Snowball.Common
+import NLP.Snowball.Internal
+import qualified Control.Monad.ST as ST
+import qualified Control.Monad.ST.Lazy as ST_
+import qualified Data.Text as Text
+import qualified Data.Traversable as Traversable
+import qualified NLP.Snowball.IO as SbIO
+import qualified NLP.Snowball.ST as SbST
+import qualified NLP.Snowball.ST.Lazy as SbST_
+import qualified System.IO.Unsafe as IO
 
--- | Snowball algorithm used for stemming words.
-data Algorithm
-    = Danish
-    | Dutch
-    | English
-    | Finnish
-    | French
-    | German
-    | Hungarian
-    | Italian
-    | Norwegian
-    | Portuguese
-    | Romanian
-    | Russian
-    | Spanish
-    | Swedish
-    | Turkish
-    | Porter -- ^ Use 'English' instead.
-    deriving (Eq, Ord)
+-- | Create a shared stemmer.
+new :: Algorithm -> SbIO.Stemmer
+{-# NOINLINE new #-}
+new = IO.unsafeDupablePerformIO . inline SbIO.new
 
-instance NFData Algorithm
-
--- | A 'Stem' can only be created by stemming a word, and two stems are
--- only considered equal if both the 'Algorithm' used and the computed
--- stems are equal.
-data Stem = Stem !Algorithm !ByteString deriving (Eq, Ord)
-
-instance Show Stem where
-    show = show . text
-
-instance NFData Stem
-
--- | Get back the 'Algorithm' that was used to compute a 'Stem'.
-algorithm :: Stem -> Algorithm
-algorithm (Stem algorithm' _) = algorithm'
-
--- | Decode a computed 'Stem' into a 'Text' value.
-text :: Stem -> Text
-text (Stem _ bytes) = decodeUtf8 bytes
-
--- | Compute the 'Stem' of a word using the specified 'Algorithm'.
+-- | Stem a word.
 --
--- >>> stem English "fantastically"
--- "fantast"
-stem :: Algorithm -> Text -> Stem
-stem algorithm' =
-    unsafePerformIO . stemWith stemmer
-  where
-    stemmer = unsafePerformIO $ newStemmer algorithm'
+-- >>> stem English "purely"
+-- "pure"
+--
+-- This uses "NLP.Snowball.IO" via 'IO.unsafeDupablePerformIO' which is
+-- thought to be safe in this case because the effects are idempotent
+-- (stemmers are thread-safe and re-entrant) and the result is pure (we
+-- always get the same stem back given the same input algorithm and word).
+-- Similarly, since stemmers are also memory-safe they may get shared
+-- between calls.
+stem :: Algorithm -> Text.Text -> Stem
+{-# INLINABLE stem #-}
+stem algorithm = IO.unsafeDupablePerformIO . SbIO.stem (new algorithm)
 
--- | Strictly map the 'stem' function over a 'Traversable' while sharing
--- a single 'Stemmer' instance and locking it only once.
-stems :: (Traversable t) => Algorithm -> t Text -> t Stem
+-- | Lazily traverse a structure and stem each word inside it.
+--
+-- >>> stems English (words "traversable container")
+-- ["travers", "contain"]
+--
+-- This uses "NLP.Snowball.ST.Lazy" which means a new stemmer is created
+-- for each call to this function but the same stemmer is used for the
+-- whole traversal and no locking is used as it isn't necessary.
+stems :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems #-}
-stems algorithm' ws = unsafePerformIO $ do
-    stemmer <- newStemmer algorithm'
-    stemsWith stemmer ws
+stems algorithm traversable = ST_.runST $ do
+    stemmer <- inline SbST_.new algorithm
+    Traversable.traverse (inline SbST_.stem stemmer) traversable
 
--- | A thread and memory safe Snowball stemmer instance.
-data Stemmer = Stemmer !Algorithm !(MVar (ForeignPtr SbStemmer))
-
--- | Create a new 'Stemmer' instance for the given 'Algorithm'.
-newStemmer :: Algorithm -> IO Stemmer
-newStemmer algorithm' =
-    useAsCString (algorithmName algorithm') $ \name -> do
-        sb_stemmer <- sb_stemmer_new name nullPtr
-        when (sb_stemmer == nullPtr) $ error "NLP.Snowball.newStemmer: nullPtr"
-        foreignPtr <- newForeignPtr sb_stemmer_delete sb_stemmer
-        mvar <- newMVar foreignPtr
-        return $ Stemmer algorithm' mvar
-
--- | Compute the stem of a single word.  The 'Stemmer' will be locked and
--- unlocked once for each call to this function.
-stemWith :: Stemmer -> Text -> IO Stem
-stemWith stemmer word = do
-    [a] <- stemsWith stemmer [word]
-    return a
-
--- | Compute stems for every word in a 'Traversable'.  The 'Stemmer' will
--- be locked and unlocked once for each call to this function, independent
--- of the number of words getting stemmed.
-stemsWith :: (Traversable t) => Stemmer -> t Text -> IO (t Stem)
-{-# INLINABLE stemsWith #-}
-stemsWith (Stemmer algorithm' mvar) ws =
-    withMVar mvar $ \foreignPtr ->
-    withForeignPtr foreignPtr $ \sb_stemmer ->
-    forM ws $ \word -> do
-        let word' = encodeUtf8 word
-        useAsCString word' $ \word'' -> do
-            let size = fromIntegral $ ByteString.length word'
-            ptr <- sb_stemmer_stem sb_stemmer word'' size
-            len <- sb_stemmer_length sb_stemmer
-            bytes <- packCStringLen (ptr,fromIntegral len)
-            return $ Stem algorithm' bytes
-
-data SbStemmer
-
-foreign import ccall unsafe "sb_stemmer_new"
-    sb_stemmer_new :: CString -> CString -> IO (Ptr SbStemmer)
-
-foreign import ccall unsafe "&sb_stemmer_delete"
-    sb_stemmer_delete :: FinalizerPtr SbStemmer
-
-foreign import ccall unsafe "sb_stemmer_stem"
-    sb_stemmer_stem :: Ptr SbStemmer -> CString -> CInt -> IO CString
-
-foreign import ccall unsafe "sb_stemmer_length"
-    sb_stemmer_length :: Ptr SbStemmer -> IO CInt
-
-algorithmName :: Algorithm -> ByteString
-algorithmName Danish     = pack "da"
-algorithmName Dutch      = pack "nl"
-algorithmName English    = pack "en"
-algorithmName Finnish    = pack "fi"
-algorithmName French     = pack "fr"
-algorithmName German     = pack "de"
-algorithmName Hungarian  = pack "hu"
-algorithmName Italian    = pack "it"
-algorithmName Norwegian  = pack "no"
-algorithmName Portuguese = pack "pt"
-algorithmName Romanian   = pack "ro"
-algorithmName Russian    = pack "ru"
-algorithmName Spanish    = pack "es"
-algorithmName Swedish    = pack "sv"
-algorithmName Turkish    = pack "tr"
-algorithmName Porter     = pack "porter"
+-- | Strictly traverse a structure and stem each word inside it.
+--
+-- >>> stems' English (words "traversable container")
+-- ["travers", "contain"]
+--
+-- This uses "NLP.Snowball.ST" which means a new stemmer is created for
+-- each call to this function but the same stemmer is used for the whole
+-- traversal and no locking is used as it isn't necessary.
+stems' :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
+{-# INLINABLE stems' #-}
+stems' algorithm traversable = ST.runST $ do
+    stemmer <- inline SbST.new algorithm
+    Traversable.traverse (inline SbST.stem stemmer) traversable
