@@ -49,7 +49,7 @@ stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm fptr) word = ST.unsafeIOToST $
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
-        (Stem algorithm)
+        (inline mkStem algorithm)
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
 
 -- $setup

@@ -52,7 +52,7 @@ stem :: Stemmer -> Text.Text -> IO Stem
 stem (Stemmer algorithm mvar) word =
     Concurrent.withMVar mvar $ \fptr ->
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
-        (Stem algorithm)
+        (inline mkStem algorithm)
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
 
 -- $setup

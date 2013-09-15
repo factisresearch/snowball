@@ -18,6 +18,7 @@ module NLP.Snowball.Internal where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.ByteString as ByteString
+import qualified Data.CaseInsensitive as CaseInsensitive
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 #ifdef __GLASGOW_HASKELL__
@@ -86,13 +87,22 @@ instance DeepSeq.NFData Encoding
 
 -- | A 'Stem' can only be created by stemming a word, and two stems are only
 -- considered equal if both the 'Algorithm' used and the computed stems are
--- equal.  This makes 'Stem' suitable for use with ordered containers like
--- @Map@ and @Set@ without us also needing to keep track of the stemming
--- algorithms, while also helping to prevent some forms of logic errors that
--- may arise when we use the same type (like 'Text.Text') for words and stems.
+-- equal.
+--
+-- This makes 'Stem' suitable for use with ordered containers like @Map@ and
+-- @Set@ without us having to keep track of the stemming algorithms, while also
+-- helping to prevent some forms of logic errors that may arise when we use the
+-- same type (like 'Text.Text') for words and stems.
+--
+-- The 'CaseInsensitive.FoldCase' instance combines conveniently with this so
+-- we can have types like @Map ('CaseInsensitive.CI' 'Stem') (Set DocumentId)@
+-- as an index of keywords in a set of documents.
 data Stem = Stem
-    !Algorithm
-    !ByteString.ByteString
+    { -- | Get back the 'Algorithm' that was used to compute a 'Stem'.
+      stemAlgorithm :: !Algorithm
+      -- | Decode a computed 'Stem' into a 'Text.Text' value.
+    , stemText :: !Text.Text
+    }
 
   deriving
     ( Eq
@@ -104,10 +114,12 @@ instance Show Stem where
 
 instance DeepSeq.NFData Stem
 
--- | Get back the 'Algorithm' that was used to compute a 'Stem'.
-stemAlgorithm :: Stem -> Algorithm
-stemAlgorithm (Stem algorithm _) = algorithm
+instance CaseInsensitive.FoldCase Stem where
+    foldCase stem =
+        stem { stemText = CaseInsensitive.foldCase (stemText stem) }
 
--- | Decode a computed 'Stem' into a 'Text.Text' value.
-stemText :: Stem -> Text.Text
-stemText (Stem _ b) = Text.decodeUtf8 b
+-- | Create a 'Stem' given an 'Algorithm' and an UTF-8 encoded
+-- 'ByteString.ByteString'.
+mkStem :: Algorithm -> ByteString.ByteString -> Stem
+{-# INLINABLE mkStem #-}
+mkStem algorithm = Stem algorithm . inline Text.decodeUtf8

@@ -160,6 +160,7 @@ LIBRARY
 
     build-depends: base == 4.*
     build-depends: bytestring
+    build-depends: case-insensitive
     build-depends: deepseq
     build-depends: text
 
