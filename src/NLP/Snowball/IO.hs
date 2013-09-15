@@ -46,7 +46,7 @@ new algorithm = Exception.bracketOnError
 -- >>> let paper = "Imperative functional programming"
 -- >>> english <- new English
 -- >>> mapM (stem english) $ words paper
--- ["Imperat", "function", "program"]
+-- ["Imperat","function","program"]
 stem :: Stemmer -> Text.Text -> IO Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm mvar) word =
@@ -54,3 +54,12 @@ stem (Stemmer algorithm mvar) word =
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
         (Stem algorithm)
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
+
+-- $setup
+-- >>> :set -XNoImplicitPrelude
+-- >>> :set -XOverloadedStrings
+-- >>> :module
+-- >>> import Data.Text
+-- >>> import NLP.Snowball.IO
+-- >>> import Prelude hiding (words)
+-- >>> default (Text)

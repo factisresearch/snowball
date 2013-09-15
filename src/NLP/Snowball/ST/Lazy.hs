@@ -44,10 +44,20 @@ new algorithm = ST.unsafeIOToST $ Exception.bracketOnError
 --
 -- >>> let paper = "Lazy Functional State Threads"
 -- >>> runST $ do english <- new English; mapM (stem english) $ words paper
--- ["Lazi", "Function", "State", "Thread"]
+-- ["Lazi","Function","State","Thread"]
 stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm fptr) word = ST.unsafeIOToST $
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
         (Stem algorithm)
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
+
+-- $setup
+-- >>> :set -XNoImplicitPrelude
+-- >>> :set -XOverloadedStrings
+-- >>> :module
+-- >>> import Control.Monad.ST.Lazy
+-- >>> import Data.Text
+-- >>> import NLP.Snowball.ST.Lazy
+-- >>> import Prelude hiding (words)
+-- >>> default (Text)

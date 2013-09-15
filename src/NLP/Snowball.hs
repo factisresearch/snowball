@@ -66,7 +66,7 @@ stem algorithm = IO.unsafeDupablePerformIO . SbIO.stem (new algorithm)
 -- | Lazily traverse a structure and stem each word inside it.
 --
 -- >>> stems English $ words "referential transparency"
--- ["referenti", "transpar"]
+-- ["referenti","transpar"]
 --
 -- This uses "NLP.Snowball.ST.Lazy" which means a new stemmer is created
 -- for each call to this function but the same stemmer is used for the
@@ -80,7 +80,7 @@ stems algorithm traversable = ST_.runST $ do
 -- | Strictly traverse a structure and stem each word inside it.
 --
 -- >>> stems' English $ words "referential transparency"
--- ["referenti", "transpar"]
+-- ["referenti","transpar"]
 --
 -- This uses "NLP.Snowball.ST" which means a new stemmer is created for
 -- each call to this function but the same stemmer is used for the whole
@@ -90,3 +90,12 @@ stems' :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 stems' algorithm traversable = ST.runST $ do
     stemmer <- inline SbST.new algorithm
     Traversable.traverse (inline SbST.stem stemmer) traversable
+
+-- $setup
+-- >>> :set -XNoImplicitPrelude
+-- >>> :set -XOverloadedStrings
+-- >>> :module
+-- >>> import Data.Text
+-- >>> import NLP.Snowball
+-- >>> import Prelude hiding (words)
+-- >>> default (Text)
