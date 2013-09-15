@@ -162,6 +162,7 @@ LIBRARY
     build-depends: bytestring
     build-depends: case-insensitive
     build-depends: deepseq
+    build-depends: hashable
     build-depends: text
 
     if impl(ghc >= 7.1)

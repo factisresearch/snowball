@@ -19,6 +19,7 @@ module NLP.Snowball.Internal where
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.ByteString as ByteString
 import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Data.Hashable as Hashable
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 #ifdef __GLASGOW_HASKELL__
@@ -66,6 +67,9 @@ data Algorithm
 
 instance DeepSeq.NFData Algorithm
 
+instance Hashable.Hashable Algorithm where
+    hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
+
 -- | Text encodings that @libstemmer@ supports.  Only 'UTF_8' is supported
 -- by every 'Algorithm'.
 data Encoding
@@ -85,6 +89,9 @@ data Encoding
 
 instance DeepSeq.NFData Encoding
 
+instance Hashable.Hashable Encoding where
+    hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
+
 -- | A 'Stem' can only be created by stemming a word, and two stems are only
 -- considered equal if both the 'Algorithm' used and the computed stems are
 -- equal.
@@ -97,6 +104,11 @@ instance DeepSeq.NFData Encoding
 -- The 'CaseInsensitive.FoldCase' instance combines conveniently with this so
 -- we can have types like @Map ('CaseInsensitive.CI' 'Stem') (Set DocumentId)@
 -- as an index of keywords in a set of documents.
+--
+-- A 'Hashable.Hashable' instance is also provided, where the 'Hashable.hash'
+-- values should only be equal if the 'Stem' values would compare as equal, as
+-- long as there aren't any collisions.  This makes 'Stem' suitable for use
+-- with unordered containers like @HashMap@ and @HashSet@ as well.
 data Stem = Stem
     { -- | Get back the 'Algorithm' that was used to compute a 'Stem'.
       stemAlgorithm :: !Algorithm
@@ -117,6 +129,12 @@ instance DeepSeq.NFData Stem
 instance CaseInsensitive.FoldCase Stem where
     foldCase stem =
         stem { stemText = CaseInsensitive.foldCase (stemText stem) }
+
+instance Hashable.Hashable Stem where
+    hashWithSalt salt stem =
+        salt `Hashable.hashWithSalt`
+        stemAlgorithm stem `Hashable.hashWithSalt`
+        stemText stem
 
 -- | Create a 'Stem' given an 'Algorithm' and an UTF-8 encoded
 -- 'ByteString.ByteString'.
