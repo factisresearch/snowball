@@ -28,7 +28,8 @@ import qualified NLP.Snowball.IO.Unsafe as Unsafe
 import qualified NLP.Snowball.IO.Unsafe.C as C
 
 -- | A memory safe Snowball stemmer encapsulated inside an 'ST.ST'
--- computation.
+-- computation.  This stemmer is not thread-safe itself but can only be
+-- created and used inside @ST@ which enforces sequential ordering.
 data Stemmer s = Stemmer !Algorithm !(Foreign.ForeignPtr C.Stemmer)
 
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
@@ -41,8 +42,9 @@ new algorithm = ST.unsafeIOToST $ Exception.bracketOnError
 
 -- | Stem a single word.
 --
--- >>> runST $ do english <- new English; stem english "fantastically"
--- "fantast"
+-- >>> let paper = "Lazy Functional State Threads"
+-- >>> runST $ do english <- new English; mapM (stem english) $ words paper
+-- ["Lazi", "Function", "State", "Thread"]
 stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm fptr) word = ST.unsafeIOToST $

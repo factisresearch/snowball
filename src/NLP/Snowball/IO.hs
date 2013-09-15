@@ -43,9 +43,10 @@ new algorithm = Exception.bracketOnError
 
 -- | Stem a word.
 --
+-- >>> let paper = "Imperative functional programming"
 -- >>> english <- new English
--- >>> stem english "fantastically"
--- "fantast"
+-- >>> mapM (stem english) $ words paper
+-- ["Imperat", "function", "program"]
 stem :: Stemmer -> Text.Text -> IO Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm mvar) word =

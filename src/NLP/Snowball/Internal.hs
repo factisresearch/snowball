@@ -84,9 +84,12 @@ data Encoding
 
 instance DeepSeq.NFData Encoding
 
--- | A 'Stem' can only be created by stemming a word, and two stems are
--- only considered equal if both the 'Algorithm' used and the computed
--- stems are equal.
+-- | A 'Stem' can only be created by stemming a word, and two stems are only
+-- considered equal if both the 'Algorithm' used and the computed stems are
+-- equal.  This makes 'Stem' suitable for use with ordered containers like
+-- @Map@ and @Set@ without us also needing to keep track of the stemming
+-- algorithms, while also helping to prevent some forms of logic errors that
+-- may arise when we use the same type (like 'Text.Text') for words and stems.
 data Stem = Stem
     !Algorithm
     !ByteString.ByteString

@@ -65,8 +65,8 @@ stem algorithm = IO.unsafeDupablePerformIO . SbIO.stem (new algorithm)
 
 -- | Lazily traverse a structure and stem each word inside it.
 --
--- >>> stems English (words "traversable container")
--- ["travers", "contain"]
+-- >>> stems English $ words "referential transparency"
+-- ["referenti", "transpar"]
 --
 -- This uses "NLP.Snowball.ST.Lazy" which means a new stemmer is created
 -- for each call to this function but the same stemmer is used for the
@@ -79,8 +79,8 @@ stems algorithm traversable = ST_.runST $ do
 
 -- | Strictly traverse a structure and stem each word inside it.
 --
--- >>> stems' English (words "traversable container")
--- ["travers", "contain"]
+-- >>> stems' English $ words "referential transparency"
+-- ["referenti", "transpar"]
 --
 -- This uses "NLP.Snowball.ST" which means a new stemmer is created for
 -- each call to this function but the same stemmer is used for the whole

@@ -42,8 +42,9 @@ new algorithm = ST.unsafeIOToST $ Exception.bracketOnError
 
 -- | Stem a word.
 --
--- >>> runST $ do english <- new English; stem english "fantastically"
--- "fantast"
+-- >>> let paper = "Lazy Functional State Threads"
+-- >>> runST $ do english <- new English; mapM (stem english) $ words paper
+-- ["Lazi", "Function", "State", "Thread"]
 stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
 stem (Stemmer algorithm fptr) word = ST.unsafeIOToST $
