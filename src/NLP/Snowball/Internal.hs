@@ -22,6 +22,8 @@ import qualified Data.CaseInsensitive as CaseInsensitive
 import qualified Data.Hashable as Hashable
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
+import qualified Test.QuickCheck as QuickCheck
+
 #ifdef __GLASGOW_HASKELL__
 import qualified GHC.Exts as GHC
 #endif
@@ -70,6 +72,9 @@ instance DeepSeq.NFData Algorithm
 instance Hashable.Hashable Algorithm where
     hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
 
+instance QuickCheck.Arbitrary Algorithm where
+    arbitrary = QuickCheck.elements (enumFrom minBound)
+
 -- | Text encodings that @libstemmer@ supports.  Only 'UTF_8' is supported
 -- by every 'Algorithm'.
 data Encoding
@@ -91,6 +96,9 @@ instance DeepSeq.NFData Encoding
 
 instance Hashable.Hashable Encoding where
     hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
+
+instance QuickCheck.Arbitrary Encoding where
+    arbitrary = QuickCheck.elements (enumFrom minBound)
 
 -- | A 'Stem' can only be created by stemming a word, and two stems are only
 -- considered equal if both the 'Algorithm' used and the computed stems are

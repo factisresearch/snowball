@@ -14,20 +14,13 @@ import           NLP.Snowball
 import qualified NLP.Snowball.IO           as Stemmer
 -------------------------------------------------------------------------------
 import           Test.HUnit                (Assertion, assertBool)
-import           Test.QuickCheck           (Arbitrary (..), Property, elements,
-                                            (==>))
+import           Test.QuickCheck           (Property, (==>))
 import           Test.QuickCheck.Instances ()
 import           Test.Tasty
 import           Test.Tasty.HUnit          (testCase)
 import           Test.Tasty.QuickCheck     (testProperty)
 -------------------------------------------------------------------------------
 
-
-instance Arbitrary Algorithm where
-    arbitrary = elements [minBound ..]
-
-
--------------------------------------------------------------------------------
 
 prop_stem_not_null :: Algorithm -> Text -> Property
 prop_stem_not_null algorithm txt =
