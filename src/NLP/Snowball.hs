@@ -50,8 +50,8 @@ new = IO.unsafeDupablePerformIO . inline SbIO.new
 
 -- | Stem a word.
 --
--- >>> stem English "purely"
--- "pure"
+-- >>> stem English "purity"
+-- "puriti"
 --
 -- This uses "NLP.Snowball.IO" via 'IO.unsafeDupablePerformIO' which is
 -- thought to be safe in this case because the effects are idempotent

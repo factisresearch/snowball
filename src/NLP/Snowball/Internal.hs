@@ -120,7 +120,7 @@ instance QuickCheck.Arbitrary Encoding where
 data Stem = Stem
     { -- | Get back the 'Algorithm' that was used to compute a 'Stem'.
       stemAlgorithm :: !Algorithm
-      -- | Decode a computed 'Stem' into a 'Text.Text' value.
+      -- | 'Text.Text' representation of a computed stem.
     , stemText :: !Text.Text
     }
 
