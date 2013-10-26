@@ -35,18 +35,18 @@ module NLP.Snowball
 import NLP.Snowball.Common
 import NLP.Snowball.Internal
 import qualified Control.Monad.ST as ST
-import qualified Control.Monad.ST.Lazy as ST_
+import qualified Control.Monad.ST.Lazy as ST.Lazy
 import qualified Data.Text as Text
 import qualified Data.Traversable as Traversable
-import qualified NLP.Snowball.IO as SbIO
-import qualified NLP.Snowball.ST as SbST
-import qualified NLP.Snowball.ST.Lazy as SbST_
+import qualified NLP.Snowball.IO as IO
+import qualified NLP.Snowball.ST as ST
+import qualified NLP.Snowball.ST.Lazy as ST.Lazy
 import qualified System.IO.Unsafe as IO
 
 -- | Create a shared stemmer.
-new :: Algorithm -> SbIO.Stemmer
+new :: Algorithm -> IO.Stemmer
 {-# NOINLINE new #-}
-new = IO.unsafeDupablePerformIO . inline SbIO.new
+new = IO.unsafeDupablePerformIO . inline IO.new
 
 -- | Stem a word.
 --
@@ -61,7 +61,7 @@ new = IO.unsafeDupablePerformIO . inline SbIO.new
 -- between calls.
 stem :: Algorithm -> Text.Text -> Stem
 {-# INLINABLE stem #-}
-stem algorithm = IO.unsafeDupablePerformIO . SbIO.stem (new algorithm)
+stem algorithm = IO.unsafeDupablePerformIO . IO.stem (new algorithm)
 
 -- | Lazily traverse a structure and stem each word inside it.
 --
@@ -73,9 +73,9 @@ stem algorithm = IO.unsafeDupablePerformIO . SbIO.stem (new algorithm)
 -- whole traversal and no locking is used as it isn't necessary.
 stems :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems #-}
-stems algorithm traversable = ST_.runST $ do
-    stemmer <- inline SbST_.new algorithm
-    Traversable.traverse (inline SbST_.stem stemmer) traversable
+stems algorithm traversable = ST.Lazy.runST $ do
+    stemmer <- inline ST.Lazy.new algorithm
+    Traversable.traverse (inline ST.Lazy.stem stemmer) traversable
 
 -- | Strictly traverse a structure and stem each word inside it.
 --
@@ -88,8 +88,8 @@ stems algorithm traversable = ST_.runST $ do
 stems' :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems' #-}
 stems' algorithm traversable = ST.runST $ do
-    stemmer <- inline SbST.new algorithm
-    Traversable.traverse (inline SbST.stem stemmer) traversable
+    stemmer <- inline ST.new algorithm
+    Traversable.traverse (inline ST.stem stemmer) traversable
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
