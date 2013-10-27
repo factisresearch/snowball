@@ -32,18 +32,22 @@ description:
     .
     This package on the other hand gets all stems right in less than a second.
 
-copyright: (c) 2013 Dag Odenhall, (c) 2008 Tupil, (c) 2002 Richard Boulton
+copyright:
+    (c) 2012-2013 Dag Odenhall,
+    (c) 2008 Tupil,
+    (c) 2002 Richard Boulton,
+    (c) 2001 Dr Martin Porter
+
 license-file: LICENSE
 license: BSD3
 maintainer: dag.odenhall@gmail.com
 
 build-type: Simple
 cabal-version: >= 1.10
-extra-source-files: libstemmer_c/include/libstemmer.h
-extra-source-files: libstemmer_c/libstemmer/modules.h
-extra-source-files: libstemmer_c/LICENSE
-extra-source-files: libstemmer_c/runtime/*.h
-extra-source-files: libstemmer_c/src_c/*.h
+extra-source-files: lib/libstemmer_c/include/libstemmer.h
+extra-source-files: lib/libstemmer_c/libstemmer/modules.h
+extra-source-files: lib/libstemmer_c/runtime/*.h
+extra-source-files: lib/libstemmer_c/src_c/*.h
 
 bug-reports: http://hub.darcs.net/dag/snowball/issues
 homepage: http://hub.darcs.net/dag/snowball
@@ -78,76 +82,76 @@ LIBRARY
     default-language: Haskell2010
     ghc-options: -Wall
 
-    includes: libstemmer_c/include/libstemmer.h
-    includes: libstemmer_c/libstemmer/modules.h
-    -- includes: libstemmer_c/runtime/api.h
-    includes: libstemmer_c/runtime/header.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_danish.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_dutch.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_english.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_finnish.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_french.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_german.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_hungarian.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_italian.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_norwegian.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_porter.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_portuguese.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_spanish.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_1_swedish.h
-    includes: libstemmer_c/src_c/stem_ISO_8859_2_romanian.h
-    includes: libstemmer_c/src_c/stem_KOI8_R_russian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_danish.h
-    includes: libstemmer_c/src_c/stem_UTF_8_dutch.h
-    includes: libstemmer_c/src_c/stem_UTF_8_english.h
-    includes: libstemmer_c/src_c/stem_UTF_8_finnish.h
-    includes: libstemmer_c/src_c/stem_UTF_8_french.h
-    includes: libstemmer_c/src_c/stem_UTF_8_german.h
-    includes: libstemmer_c/src_c/stem_UTF_8_hungarian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_italian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_norwegian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_porter.h
-    includes: libstemmer_c/src_c/stem_UTF_8_portuguese.h
-    includes: libstemmer_c/src_c/stem_UTF_8_romanian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_russian.h
-    includes: libstemmer_c/src_c/stem_UTF_8_spanish.h
-    includes: libstemmer_c/src_c/stem_UTF_8_swedish.h
-    includes: libstemmer_c/src_c/stem_UTF_8_turkish.h
+    includes: lib/libstemmer_c/include/libstemmer.h
+    includes: lib/libstemmer_c/libstemmer/modules.h
+    -- includes: lib/libstemmer_c/runtime/api.h
+    includes: lib/libstemmer_c/runtime/header.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_danish.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_dutch.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_english.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_finnish.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_french.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_german.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_hungarian.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_italian.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_norwegian.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_porter.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_portuguese.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_spanish.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_swedish.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_2_romanian.h
+    includes: lib/libstemmer_c/src_c/stem_KOI8_R_russian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_danish.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_dutch.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_english.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_finnish.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_french.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_german.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_hungarian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_italian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_norwegian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_porter.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_portuguese.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_romanian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_russian.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_spanish.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_swedish.h
+    includes: lib/libstemmer_c/src_c/stem_UTF_8_turkish.h
 
-    c-sources: libstemmer_c/libstemmer/libstemmer.c
-    c-sources: libstemmer_c/runtime/api.c
-    c-sources: libstemmer_c/runtime/utilities.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_danish.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_dutch.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_english.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_finnish.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_french.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_german.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_hungarian.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_italian.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_norwegian.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_porter.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_portuguese.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_spanish.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_1_swedish.c
-    c-sources: libstemmer_c/src_c/stem_ISO_8859_2_romanian.c
-    c-sources: libstemmer_c/src_c/stem_KOI8_R_russian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_danish.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_dutch.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_english.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_finnish.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_french.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_german.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_hungarian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_italian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_norwegian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_porter.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_portuguese.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_romanian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_russian.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_spanish.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_swedish.c
-    c-sources: libstemmer_c/src_c/stem_UTF_8_turkish.c
+    c-sources: lib/libstemmer_c/libstemmer/libstemmer.c
+    c-sources: lib/libstemmer_c/runtime/api.c
+    c-sources: lib/libstemmer_c/runtime/utilities.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_danish.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_dutch.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_english.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_finnish.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_french.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_german.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_hungarian.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_italian.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_norwegian.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_porter.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_portuguese.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_spanish.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_swedish.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_2_romanian.c
+    c-sources: lib/libstemmer_c/src_c/stem_KOI8_R_russian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_danish.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_dutch.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_english.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_finnish.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_french.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_german.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_hungarian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_italian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_norwegian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_porter.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_portuguese.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_romanian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_russian.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_spanish.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_swedish.c
+    c-sources: lib/libstemmer_c/src_c/stem_UTF_8_turkish.c
 
     exposed-modules: NLP.Snowball
     exposed-modules: NLP.Snowball.Common
