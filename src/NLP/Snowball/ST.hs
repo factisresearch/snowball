@@ -35,10 +35,10 @@ data Stemmer s = Stemmer !Algorithm !(Foreign.ForeignPtr C.Stemmer)
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
 new :: Algorithm -> ST.ST s (Stemmer s)
 {-# INLINABLE new #-}
-new algorithm = ST.unsafeIOToST $ Exception.bracketOnError
-    (inline Unsafe.new algorithm UTF_8)
+new algorithm' = ST.unsafeIOToST $ Exception.bracketOnError
+    (inline Unsafe.new algorithm' UTF_8)
     (inline Unsafe.delete)
-    (fmap (Stemmer algorithm) . Foreign.newForeignPtr (inline C.finalize))
+    (fmap (Stemmer algorithm') . Foreign.newForeignPtr (inline C.finalize))
 
 -- | Stem a word.
 --
@@ -47,9 +47,9 @@ new algorithm = ST.unsafeIOToST $ Exception.bracketOnError
 -- ["Lazi","Function","State","Thread"]
 stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
-stem (Stemmer algorithm fptr) word = ST.unsafeIOToST $
+stem (Stemmer algorithm' fptr) word = ST.unsafeIOToST $
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
-        (inline mkStem algorithm)
+        (inline mkStem algorithm')
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
 
 -- $setup

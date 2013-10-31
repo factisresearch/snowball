@@ -28,5 +28,5 @@ unsafeSpec = describe "Unsafe" $
         mapM_ (newShouldThrow ISO_8859_2) (algorithms \\ [Romanian])
         mapM_ (newShouldThrow KOI8_R) (algorithms \\ [Russian])
   where
-    newShouldThrow encoding algorithm =
-        Unsafe.new algorithm encoding `shouldThrow` isUserError
+    newShouldThrow encoding algorithm' =
+        Unsafe.new algorithm' encoding `shouldThrow` isUserError

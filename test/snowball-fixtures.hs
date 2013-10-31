@@ -30,7 +30,7 @@ main = do
         stemmer <- new algorithm
         forM (pairs ws) $ \(word,expected) -> do
           stemmed <- inline stem stemmer word
-          return $ stemText stemmed == expected
+          return $ text stemmed == expected
     let hits = length $ filter id $ concat tests
         misses = length $ filter not $ concat tests
     putStrLn $ "Hits: " ++ show hits

@@ -118,9 +118,7 @@ instance QuickCheck.Arbitrary Encoding where
 -- long as there aren't any collisions.  This makes 'Stem' suitable for use
 -- with unordered containers like @HashMap@ and @HashSet@ as well.
 data Stem = Stem
-    { -- | Get back the 'Algorithm' that was used to compute a 'Stem'.
-      stemAlgorithm :: !Algorithm
-      -- | 'Text.Text' representation of a computed stem.
+    { stemAlgorithm :: !Algorithm
     , stemText :: !Text.Text
     }
 
@@ -148,4 +146,12 @@ instance Hashable.Hashable Stem where
 -- 'ByteString.ByteString'.
 mkStem :: Algorithm -> ByteString.ByteString -> Stem
 {-# INLINABLE mkStem #-}
-mkStem algorithm = Stem algorithm . inline Text.decodeUtf8
+mkStem algorithm' = Stem algorithm' . inline Text.decodeUtf8
+
+-- | The 'Algorithm' used to compute a 'Stem'.
+algorithm :: Stem -> Algorithm
+algorithm = stemAlgorithm
+
+-- | The 'Text.Text' representation of a computed 'Stem'.
+text :: Stem -> Text.Text
+text = stemText

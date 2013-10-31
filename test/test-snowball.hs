@@ -23,8 +23,8 @@ import           Test.Tasty.QuickCheck     (testProperty)
 
 
 prop_stem_not_null :: Algorithm -> Text -> Property
-prop_stem_not_null algorithm txt =
-    not (Text.null txt) ==> not (Text.null . stemText $ stem algorithm txt)
+prop_stem_not_null algorithm' txt =
+    not (Text.null txt) ==> not (Text.null . text $ stem algorithm' txt)
 
 case_english_dictionary :: Assertion
 case_english_dictionary = do
@@ -32,7 +32,7 @@ case_english_dictionary = do
     english <- Stemmer.new English
     forM_ ws $ \word -> do
       stemmed <- Stemmer.stem english word
-      assertBool "not null" $ not (Text.null . stemText $ stemmed)
+      assertBool "not null" $ not (Text.null . text $ stemmed)
 
 
 -------------------------------------------------------------------------------

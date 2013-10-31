@@ -9,8 +9,8 @@
 -- Stability: experimental
 -- Portability: non-portable
 --
--- You can do everything with only 'stem', 'Algorithm' and 'stemText'.  The
--- rest is provided for heavy-duty use with varying trade-offs.
+-- You can do everything with only 'stem', 'Algorithm' and 'text'.  The rest is
+-- provided for heavy-duty use with varying trade-offs.
 --
 -- ["NLP.Snowball"] Provides simplicity in the form of pure wrappers around
 -- the other interfaces.
@@ -61,7 +61,7 @@ new = IO.unsafeDupablePerformIO . inline IO.new
 -- between calls.
 stem :: Algorithm -> Text.Text -> Stem
 {-# INLINABLE stem #-}
-stem algorithm = IO.unsafeDupablePerformIO . IO.stem (new algorithm)
+stem algorithm' = IO.unsafeDupablePerformIO . IO.stem (new algorithm')
 
 -- | Lazily traverse a structure and stem each word inside it.
 --
@@ -73,8 +73,8 @@ stem algorithm = IO.unsafeDupablePerformIO . IO.stem (new algorithm)
 -- whole traversal and no locking is used as it isn't necessary.
 stems :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems #-}
-stems algorithm traversable = ST.Lazy.runST $ do
-    stemmer <- inline ST.Lazy.new algorithm
+stems algorithm' traversable = ST.Lazy.runST $ do
+    stemmer <- inline ST.Lazy.new algorithm'
     Traversable.traverse (inline ST.Lazy.stem stemmer) traversable
 
 -- | Strictly traverse a structure and stem each word inside it.
@@ -87,8 +87,8 @@ stems algorithm traversable = ST.Lazy.runST $ do
 -- traversal and no locking is used as it isn't necessary.
 stems' :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems' #-}
-stems' algorithm traversable = ST.runST $ do
-    stemmer <- inline ST.new algorithm
+stems' algorithm' traversable = ST.runST $ do
+    stemmer <- inline ST.new algorithm'
     Traversable.traverse (inline ST.stem stemmer) traversable
 
 -- $setup

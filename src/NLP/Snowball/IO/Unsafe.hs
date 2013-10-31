@@ -45,11 +45,11 @@ list = do
 -- responsibility to call 'delete' when the stemmer isn't used anymore.
 new :: Algorithm -> Encoding -> IO Stemmer
 {-# INLINABLE new #-}
-new algorithm encoding =
-    ByteString.useAsCString (algorithmName algorithm) $ \algorithm' ->
+new algorithm' encoding =
+    ByteString.useAsCString (algorithmName algorithm') $ \algorithm'' ->
     ByteString.useAsCString (encodingName encoding) $ \encoding' ->
         Foreign.throwIfNull "NLP.Snowball.Unsafe.new: nullPtr" $
-            inline C.new algorithm' encoding'
+            inline C.new algorithm'' encoding'
   where
 
     algorithmName Danish = ByteString.pack "da"
@@ -86,8 +86,8 @@ delete = inline C.delete
 -- callback!  It has been deleted and is unusable.
 with :: Algorithm -> Encoding -> (Stemmer -> IO a) -> IO a
 {-# INLINABLE with #-}
-with algorithm encoding =
-    Exception.bracket (inline new algorithm encoding) (inline delete)
+with algorithm' encoding =
+    Exception.bracket (inline new algorithm' encoding) (inline delete)
 
 -- | Compute the stem of the given word with the given stemmer.  The word
 -- needs to be encoded in the 'Encoding' the 'Stemmer' was created with, as

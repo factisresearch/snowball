@@ -34,12 +34,12 @@ data Stemmer = Stemmer
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
 new :: Algorithm -> IO Stemmer
 {-# INLINABLE new #-}
-new algorithm = Exception.bracketOnError
-    (inline Unsafe.new algorithm UTF_8)
+new algorithm' = Exception.bracketOnError
+    (inline Unsafe.new algorithm' UTF_8)
     (inline Unsafe.delete)
     (\stemmer -> do
         fptr <- Foreign.newForeignPtr (inline C.finalize) stemmer
-        fmap (Stemmer algorithm) (Concurrent.newMVar fptr))
+        fmap (Stemmer algorithm') (Concurrent.newMVar fptr))
 
 -- | Stem a word.
 --
@@ -49,10 +49,10 @@ new algorithm = Exception.bracketOnError
 -- ["Imperat","function","program"]
 stem :: Stemmer -> Text.Text -> IO Stem
 {-# INLINABLE stem #-}
-stem (Stemmer algorithm mvar) word =
+stem (Stemmer algorithm' mvar) word =
     Concurrent.withMVar mvar $ \fptr ->
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
-        (inline mkStem algorithm)
+        (inline mkStem algorithm')
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))
 
 -- $setup

@@ -13,8 +13,8 @@ module NLP.Snowball.Common
       Algorithm(..)
     , Encoding(..)
     , Stem
-    , stemAlgorithm
-    , stemText
+    , algorithm
+    , text
     ) where
 
 import NLP.Snowball.Internal
