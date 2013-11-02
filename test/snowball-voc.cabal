@@ -1,0 +1,29 @@
+name: snowball-voc
+version: 2.0.0.0
+
+build-type: Simple
+cabal-version: >=1.2
+
+FLAG stemmer
+    default: False
+    manual: True
+
+EXECUTABLE snowball-voc
+    main-is: snowball-voc.hs
+
+    ghc-options: -rtsopts
+    ghc-options: -threaded
+    ghc-options: -Wall
+    ghc-options: -with-rtsopts=-N
+
+    build-depends: async
+    build-depends: base
+    build-depends: bytestring
+    build-depends: filepath
+    build-depends: text
+
+    if flag(stemmer)
+        build-depends: stemmer
+        cpp-options: -DSTEMMER
+    else
+        build-depends: snowball
