@@ -15,22 +15,26 @@ description:
     >>> stem English "computing" == stem English "computers"
     True
     .
-    The design is originally influenced heavily by the <stemmer> package, but
-    with a number of improvements:
+    Originally based on the
+    <http://hackage.haskell.org/package/stemmer stemmer> package, this package
+    provides a number of improvements:
     .
     [Safety] type-safe, thread-safe, memory-safe
     .
-    [Performance] more than 5 times faster
+    [Performance] carefully tuned and using efficient data types
     .
-    [Correctness] extensively tested and properly deals with Unicode
+    [Correctness] extensively tested and handles Unicode properly
     .
     [Power] optional low-level interfaces
     .
-    As a simple comparison, stemming the 453 732 words in the test data files
-    provided by the upstream Snowball distribution takes the @stemmer@ package
-    about five seconds on my machine, and it gets 93 947 stems wrong.
-    .
-    This package on the other hand gets all stems right in less than a second.
+    For a comparison, stemming and verifying the 580 498 words included with
+    the upstream Snowball distribution on my machine takes this package about
+    half a second with no errors, regardless of what the system locale is.
+    The same test using the @stemmer@ package gives different results depending
+    on the system locale encoding, and takes 2-14 seconds with 22-34% errors,
+    if it runs at all: with non-lenient encodings it fails all together and
+    with encodings that use units larger than a byte it segfaults, regardless
+    of leniency.
 
 copyright:
     (c) 2012-2013 Dag Odenhall,
