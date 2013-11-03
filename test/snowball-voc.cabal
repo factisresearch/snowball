@@ -16,10 +16,12 @@ EXECUTABLE snowball-voc
     ghc-options: -Wall
     ghc-options: -with-rtsopts=-N
 
+    build-depends: ansi-wl-pprint
     build-depends: async
     build-depends: base
     build-depends: bytestring
     build-depends: filepath
+    build-depends: microtimer
     build-depends: text
 
     if flag(stemmer)

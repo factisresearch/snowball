@@ -1,7 +1,15 @@
-VOC := ./test/dist/build/snowball-voc/snowball-voc
-
 .PHONY: all
 all: lib/libstemmer_c
+
+.PHONY: test
+test:
+	$(MAKE) snowball
+	$(MAKE) stemmer
+
+.PHONY: snowball stemmer
+snowball stemmer: lib/snowball_all
+	$(MAKE) -C "test" $@
+	env LANG=C ./test/dist/build/snowball-voc/snowball-voc
 
 lib/%: %.tgz | lib
 	tar -xzvf "$<" -C "$|"
@@ -11,16 +19,3 @@ lib/%: %.tgz | lib
 
 lib:
 	mkdir "$@"
-
-test/dist:
-	cabal install ./test --only-dependencies
-	cabal install ./test --only-dependencies -fstemmer
-
-.PHONY: test
-test: lib/snowball_all | test/dist
-	cd test; cabal configure; cabal build
-	time $(VOC)
-	time env LANG=C $(VOC)
-	cd test; cabal configure -fstemmer; cabal build
-	time $(VOC)
-	time env LANG=C $(VOC)
