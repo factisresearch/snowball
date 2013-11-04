@@ -1,8 +1,8 @@
 .PHONY: all
 all: vocabulary
 
-.PHONY: vocabulary
-vocabulary: configure | lib/snowball_all
+.PHONY: vocabulary parallel
+vocabulary parallel: configure | lib/snowball_all
 	cabal run "$@"
 
 .PHONY: configure

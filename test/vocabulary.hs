@@ -11,16 +11,13 @@
 module Main where
 
 import qualified Control.Concurrent.Async as Async
-import qualified Data.ByteString as ByteString
-import qualified Data.Char as Char
 import qualified Data.Foldable as Foldable
 import qualified Data.Monoid as Monoid
 import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
 import qualified GHC.IO.Encoding as GHC
-import qualified System.FilePath as FilePath
 import qualified System.IO.Error as IO
 import qualified System.Microtimer as Microtimer
+import qualified TestData
 import qualified Text.PrettyPrint.ANSI.Leijen as PP
 import Text.PrettyPrint.ANSI.Leijen ((<>), (<+>))
 
@@ -38,27 +35,6 @@ import qualified NLP.Snowball as Stemmer
 algorithms :: [Algorithm]
 algorithms = enumFrom minBound
 
-lowerCase :: String -> String
-lowerCase (c:cs) = Char.toLower c : cs
-lowerCase _ = []
-
-directory :: FilePath
-directory = FilePath.joinPath
-    [ "lib"
-    , "snowball_all"
-    , "algorithms"
-    ]
-
-file :: Algorithm -> FilePath -> FilePath
-file algorithm name = FilePath.joinPath
-    [ directory
-    , lowerCase (show algorithm)
-    , name
-    ]
-
-readLines :: FilePath -> IO [Text.Text]
-readLines = fmap (Text.lines . Text.decodeUtf8) . ByteString.readFile
-
 stems :: Algorithm -> [Text.Text] -> [Text.Text]
 #ifdef STEMMER
 stems algorithm = map (Text.pack . Stemmer.stem algorithm . Text.unpack)
@@ -74,8 +50,8 @@ instance Monoid.Monoid Result where
 
 test :: Algorithm -> IO Result
 test algorithm = do
-    voc <- readLines (file algorithm "voc.txt")
-    output <- readLines (file algorithm "output.txt")
+    voc <- TestData.voc (show algorithm)
+    output <- TestData.output (show algorithm)
     let stemmed = stems algorithm voc
         tests = zipWith (==) stemmed output
     return $! Result (length voc) ((length . filter not) tests)

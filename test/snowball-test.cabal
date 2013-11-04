@@ -10,6 +10,7 @@ FLAG stemmer
 
 EXECUTABLE vocabulary
     main-is: vocabulary.hs
+    other-modules: TestData
 
     ghc-options: -rtsopts
     ghc-options: -threaded
@@ -29,3 +30,21 @@ EXECUTABLE vocabulary
         cpp-options: -DSTEMMER
     else
         build-depends: snowball
+
+EXECUTABLE parallel
+    main-is: parallel.hs
+    other-modules: TestData
+
+    ghc-options: -rtsopts
+    ghc-options: -threaded
+    ghc-options: -Wall
+    ghc-options: -with-rtsopts=-N
+
+    build-depends: async
+    build-depends: base
+    build-depends: bytestring
+    build-depends: deepseq
+    build-depends: filepath
+    build-depends: parallel
+    build-depends: snowball
+    build-depends: text
