@@ -1,4 +1,4 @@
-name: snowball-voc
+name: snowball-test
 version: 2.0.0.0
 
 build-type: Simple
@@ -8,8 +8,8 @@ FLAG stemmer
     default: False
     manual: True
 
-EXECUTABLE snowball-voc
-    main-is: snowball-voc.hs
+EXECUTABLE vocabulary
+    main-is: vocabulary.hs
 
     ghc-options: -rtsopts
     ghc-options: -threaded

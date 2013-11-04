@@ -1,15 +1,18 @@
-.NOTPARALLEL:
+.PHONY: all
+all: vocabulary
 
-.PHONY: snowball
-snowball: | dist
-	cabal configure
-	cabal build
+.PHONY: vocabulary
+vocabulary: configure | lib/snowball_all
+	cabal run "$@"
 
-.PHONY: stemmer
-stemmer: | dist
-	cabal configure -fstemmer
-	cabal build
+.PHONY: configure
+configure: | cabal.sandbox.config
+	cabal configure $(FLAGS)
 
-dist:
+cabal.sandbox.config:
+	cabal sandbox init
+	cabal sandbox add-source ../
 	cabal install --only-dependencies
 	cabal install --only-dependencies -fstemmer
+
+include ../lib.mk
