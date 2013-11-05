@@ -24,6 +24,7 @@ import qualified Control.Monad.ST.Lazy.Unsafe as ST
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Foreign
+import qualified GHC.IO as GHC
 import qualified NLP.Snowball.IO.Unsafe as Unsafe
 import qualified NLP.Snowball.IO.Unsafe.C as C
 
@@ -35,10 +36,12 @@ data Stemmer s = Stemmer !Algorithm !(Foreign.ForeignPtr C.Stemmer)
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
 new :: Algorithm -> ST.ST s (Stemmer s)
 {-# INLINABLE new #-}
-new algorithm' = ST.unsafeIOToST $ Exception.bracketOnError
-    (inline Unsafe.new algorithm' UTF_8)
-    (inline Unsafe.delete)
-    (fmap (Stemmer algorithm') . Foreign.newForeignPtr (inline C.finalize))
+new algorithm' = ST.unsafeIOToST $ do
+    GHC.noDuplicate
+    Exception.bracketOnError
+        (inline Unsafe.new algorithm' UTF_8)
+        (inline Unsafe.delete)
+        (fmap (Stemmer algorithm') . Foreign.newForeignPtr (inline C.finalize))
 
 -- | Stem a single word.
 --
@@ -47,7 +50,8 @@ new algorithm' = ST.unsafeIOToST $ Exception.bracketOnError
 -- ["Lazi","Function","State","Thread"]
 stem :: Stemmer s -> Text.Text -> ST.ST s Stem
 {-# INLINABLE stem #-}
-stem (Stemmer algorithm' fptr) word = ST.unsafeIOToST $
+stem (Stemmer algorithm' fptr) word = ST.unsafeIOToST $ do
+    GHC.noDuplicate
     Foreign.withForeignPtr fptr $ \stemmer -> fmap
         (inline mkStem algorithm')
         (inline Unsafe.stem stemmer (Text.encodeUtf8 word))

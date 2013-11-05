@@ -46,22 +46,15 @@ import qualified System.IO.Unsafe as IO
 -- | Create a shared stemmer.
 new :: Algorithm -> IO.Stemmer
 {-# NOINLINE new #-}
-new = IO.unsafeDupablePerformIO . inline IO.new
+new = IO.unsafePerformIO . inline IO.new
 
 -- | Stem a word.
 --
 -- >>> stem English "purity"
 -- "puriti"
---
--- This uses "NLP.Snowball.IO" via 'IO.unsafeDupablePerformIO' which is
--- thought to be safe in this case because the effects are idempotent
--- (stemmers are thread-safe and re-entrant) and the result is pure (we
--- always get the same stem back given the same input algorithm and word).
--- Similarly, since stemmers are also memory-safe they may get shared
--- between calls.
 stem :: Algorithm -> Text.Text -> Stem
 {-# INLINABLE stem #-}
-stem algorithm' = IO.unsafeDupablePerformIO . IO.stem (new algorithm')
+stem algorithm' = IO.unsafePerformIO . IO.stem (new algorithm')
 
 -- | Lazily traverse a structure and stem each word inside it.
 --
