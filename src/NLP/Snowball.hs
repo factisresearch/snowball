@@ -37,7 +37,7 @@ import NLP.Snowball.Internal
 import qualified Control.Monad.ST as ST
 import qualified Control.Monad.ST.Lazy as ST.Lazy
 import qualified Data.Text as Text
-import qualified Data.Traversable as Traversable
+import qualified Data.Traversable as Iter
 import qualified NLP.Snowball.IO as IO
 import qualified NLP.Snowball.ST as ST
 import qualified NLP.Snowball.ST.Lazy as ST.Lazy
@@ -64,11 +64,11 @@ stem algorithm' = IO.unsafePerformIO . IO.stem (new algorithm')
 -- This uses "NLP.Snowball.ST.Lazy" which means a new stemmer is created
 -- for each call to this function but the same stemmer is used for the
 -- whole traversal and no locking is used as it isn't necessary.
-stems :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
+stems :: (Iter.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems #-}
-stems algorithm' traversable = ST.Lazy.runST $ do
+stems algorithm' iter = ST.Lazy.runST $ do
     stemmer <- inline ST.Lazy.new algorithm'
-    Traversable.traverse (inline ST.Lazy.stem stemmer) traversable
+    Iter.traverse (inline ST.Lazy.stem stemmer) iter
 
 -- | Strictly traverse a structure and stem each word inside it.
 --
@@ -78,11 +78,11 @@ stems algorithm' traversable = ST.Lazy.runST $ do
 -- This uses "NLP.Snowball.ST" which means a new stemmer is created for
 -- each call to this function but the same stemmer is used for the whole
 -- traversal and no locking is used as it isn't necessary.
-stems' :: (Traversable.Traversable t) => Algorithm -> t Text.Text -> t Stem
+stems' :: (Iter.Traversable t) => Algorithm -> t Text.Text -> t Stem
 {-# INLINABLE stems' #-}
-stems' algorithm' traversable = ST.runST $ do
+stems' algorithm' iter = ST.runST $ do
     stemmer <- inline ST.new algorithm'
-    Traversable.traverse (inline ST.stem stemmer) traversable
+    Iter.traverse (inline ST.stem stemmer) iter
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
