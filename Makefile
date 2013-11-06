@@ -3,8 +3,8 @@ all: lib/libstemmer_c
 
 .PHONY: vocabulary
 vocabulary:
-	$(MAKE) -C "test" "$@"
-	$(MAKE) -C "test" "$@" FLAGS=-fstemmer
+	$(MAKE) -C "test" "$@" LANG=C
+	$(MAKE) -C "test" "$@" FLAGS=-fstemmer LANG=C
 
 .PHONY: parallel
 parallel:
