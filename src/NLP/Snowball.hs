@@ -46,7 +46,7 @@ import qualified System.IO.Unsafe as IO
 -- | Create a shared stemmer.
 new :: Algorithm -> IO.Stemmer
 {-# NOINLINE new #-}
-new = IO.unsafePerformIO . inline IO.new
+new = IO.unsafePerformIO . IO.new
 
 -- | Stem a word.
 --
