@@ -1,6 +1,7 @@
 {-# OPTIONS_HADDOCK not-home #-}
 
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 #ifdef SAFE_HASKELL
 {-# LANGUAGE Unsafe #-}
@@ -19,6 +20,7 @@ module NLP.Snowball.Internal where
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.ByteString as ByteString
 import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Data.Data as Data
 import qualified Data.Hashable as Hashable
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -65,6 +67,7 @@ data Algorithm
     , Ord
     , Read
     , Show
+    , Data.Typeable
     )
 
 instance DeepSeq.NFData Algorithm
@@ -90,6 +93,7 @@ data Encoding
     , Ord
     , Read
     , Show
+    , Data.Typeable
     )
 
 instance DeepSeq.NFData Encoding
@@ -125,6 +129,7 @@ data Stem = Stem
   deriving
     ( Eq
     , Ord
+    , Data.Typeable
     )
 
 instance Show Stem where

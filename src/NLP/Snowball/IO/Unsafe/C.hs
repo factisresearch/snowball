@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 #ifdef SAFE_HASKELL
 {-# LANGUAGE Unsafe #-}
@@ -19,12 +20,13 @@ module NLP.Snowball.IO.Unsafe.C
     , length
     ) where
 
+import qualified Data.Data as Data
 import qualified Foreign
 import qualified Foreign.C as Foreign
 import qualified Prelude
 
 -- | The foreign @sb_stemmer@ struct.
-data Stemmer
+data Stemmer deriving Data.Typeable
 
 -- | The foreign @sb_stemmer_list@ function.
 foreign import ccall unsafe "sb_stemmer_list"

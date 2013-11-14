@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 #ifdef SAFE_HASKELL
 {-# LANGUAGE Trustworthy #-}
@@ -20,6 +21,7 @@ import NLP.Snowball.Common
 import NLP.Snowball.Internal
 import qualified Control.Concurrent as Concurrent
 import qualified Control.Exception as Exception
+import qualified Data.Data as Data
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Foreign
@@ -30,6 +32,7 @@ import qualified NLP.Snowball.IO.Unsafe.C as C
 data Stemmer = Stemmer
     !Algorithm
     !(Concurrent.MVar (Foreign.ForeignPtr C.Stemmer))
+  deriving Data.Typeable
 
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
 new :: Algorithm -> IO Stemmer

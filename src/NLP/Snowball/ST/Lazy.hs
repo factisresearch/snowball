@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 #ifdef SAFE_HASKELL
 {-# LANGUAGE Trustworthy #-}
@@ -21,6 +22,7 @@ import NLP.Snowball.Internal
 import qualified Control.Exception as Exception
 import qualified Control.Monad.ST.Lazy.Safe as ST
 import qualified Control.Monad.ST.Lazy.Unsafe as ST
+import qualified Data.Data as Data
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Foreign
@@ -32,6 +34,7 @@ import qualified NLP.Snowball.IO.Unsafe.C as C
 -- computation.  This stemmer is not thread-safe itself but can only be
 -- created and used inside @ST@ which enforces sequential ordering.
 data Stemmer s = Stemmer !Algorithm !(Foreign.ForeignPtr C.Stemmer)
+  deriving Data.Typeable
 
 -- | Create a new 'Stemmer' instance using the given 'Algorithm'.
 new :: Algorithm -> ST.ST s (Stemmer s)
