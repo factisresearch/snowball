@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
 {-# LANGUAGE CPP #-}
@@ -70,7 +71,8 @@ data Algorithm
     , Data.Typeable
     )
 
-instance DeepSeq.NFData Algorithm
+instance DeepSeq.NFData Algorithm where
+    rnf = (`seq` ())
 
 instance Hashable.Hashable Algorithm where
     hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
@@ -96,7 +98,8 @@ data Encoding
     , Data.Typeable
     )
 
-instance DeepSeq.NFData Encoding
+instance DeepSeq.NFData Encoding where
+    rnf = (`seq` ())
 
 instance Hashable.Hashable Encoding where
     hashWithSalt salt = Hashable.hashWithSalt salt . fromEnum
@@ -135,7 +138,8 @@ data Stem = Stem
 instance Show Stem where
     show = show . stemText
 
-instance DeepSeq.NFData Stem
+instance DeepSeq.NFData Stem where
+    rnf = (`seq` ())
 
 instance CaseInsensitive.FoldCase Stem where
     foldCase stem =

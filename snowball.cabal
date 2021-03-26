@@ -96,7 +96,7 @@ LIBRARY
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_finnish.h
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_french.h
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_german.h
-    includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_hungarian.h
+    includes: lib/libstemmer_c/src_c/stem_ISO_8859_2_hungarian.h
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_italian.h
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_norwegian.h
     includes: lib/libstemmer_c/src_c/stem_ISO_8859_1_porter.h
@@ -131,7 +131,7 @@ LIBRARY
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_finnish.c
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_french.c
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_german.c
-    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_hungarian.c
+    c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_2_hungarian.c
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_italian.c
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_norwegian.c
     c-sources: lib/libstemmer_c/src_c/stem_ISO_8859_1_porter.c

@@ -31,7 +31,6 @@ data Stemmer deriving Data.Typeable
 -- | The foreign @sb_stemmer_list@ function.
 foreign import ccall unsafe "sb_stemmer_list"
     list :: Prelude.IO (Foreign.Ptr Foreign.CString)
-{-# INLINABLE list #-}
 
 -- | The foreign @sb_stemmer_new@ function.
 foreign import ccall unsafe "sb_stemmer_new"
@@ -39,17 +38,14 @@ foreign import ccall unsafe "sb_stemmer_new"
         :: Foreign.CString
         -> Foreign.CString
         -> Prelude.IO (Foreign.Ptr Stemmer)
-{-# INLINABLE new #-}
 
 -- | The foreign @sb_stemmer_delete@ function.
 foreign import ccall unsafe "sb_stemmer_delete"
     delete :: Foreign.Ptr Stemmer -> Prelude.IO ()
-{-# INLINABLE delete #-}
 
 -- | Pointer to the foreign @sb_stemmer_delete@ function.
 foreign import ccall unsafe "&sb_stemmer_delete"
     finalize :: Foreign.FinalizerPtr Stemmer
-{-# INLINABLE finalize #-}
 
 -- | The foreign @sb_stemmer_stem@ function.
 foreign import ccall unsafe "sb_stemmer_stem"
@@ -58,9 +54,7 @@ foreign import ccall unsafe "sb_stemmer_stem"
         -> Foreign.CString
         -> Foreign.CInt
         -> Prelude.IO Foreign.CString
-{-# INLINABLE stem #-}
 
 -- | The foreign @sb_stemmer_length@ function.
 foreign import ccall unsafe "sb_stemmer_length"
     length :: Foreign.Ptr Stemmer -> Prelude.IO Foreign.CInt
-{-# INLINABLE length #-}
